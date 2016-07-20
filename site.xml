@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.accela.ide_2.0.2.8.jar" id="com.accela.ide" version="2.0.2.8"/>
+   <feature url="features/com.accela.ide_2.0.3.0.jar" id="com.accela.ide" version="2.0.3.0">
+      <category name="Accela"/>
+   </feature>
    <category-def name="Accela" label="Accela"/>
 </site>
