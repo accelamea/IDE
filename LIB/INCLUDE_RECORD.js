@@ -1,5 +1,5 @@
 /**
- * this object is used to read any Accela records
+ * this object is used to read and modify any record type
  */
 /*-USER-----------DATE----------------COMMENTS----------------------------------------------------------/
  | SLEIMAN         06/01/2016 10:11:10 formatting code
