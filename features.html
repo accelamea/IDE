@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="UTF-8">
+<title>Accela IDE</title>
+<meta name="description"
+	content="Government software that streamlines land, permitting, asset, licensing, right-of-way, legislative management, and resource and recreation management processes." />
+<link href="favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+<link href='stylesheets/font.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="stylesheets/features.css" media="screen">
+<link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+<script type="text/javascript" src="IDEFeatures/js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="IDEFeatures/js/jssor.slider-21.1.5.mini.js"></script>
+<script>
+	jQuery(document).ready(function($) {
+
+		var jssor_1_SlideoTransitions = [ 
+		[ {b : 0, d:600, x:650, y:-150,e : {x : 27}} ],
+		[ {b : 0, d:600, x:750, y:-150,e : {x : 27}} ],
+		[ {b : 0, d:600, x:420, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:820, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:820, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:820, y:-100,e : {x : 27}} ],
+		[ {b : 0, d:600, x:850, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:770, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:770, y:-50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:550, y:240,e : {x : 27}} ],
+		[ {b : 0, d:600, x:650, y:100,e : {x : 27}} ],
+		[ {b : 0, d:600, x:650, y:100,e : {x : 27}} ],
+		[ {b : 0, d:600, x:450, y:50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:720, y:50,e : {x : 27}} ],
+		[ {b : 0, d:600, x:720, y:-100,e : {x : 27}} ],
+		[ {b : 0, d:600, x:510, y:40,e : {x : 27}} ]
+		];
+
+		var jssor_1_options = {
+			$AutoPlay : true,
+			$Idle : 10000,
+			$CaptionSliderOptions : {
+				$Class : $JssorCaptionSlideo$,
+				$Transitions : jssor_1_SlideoTransitions,
+				$Breaks : [ [ {
+					d : 3000,
+					b : 1000
+				} ] ]
+			},
+			$ArrowNavigatorOptions : {
+				$Class : $JssorArrowNavigator$
+			},
+			$BulletNavigatorOptions : {
+				$Class : $JssorBulletNavigator$
+
+			}
+		};
+
+		var jssor_1_slider = new $JssorSlider$("jssor_1", jssor_1_options);
+
+		//responsive code begin
+		//you can remove responsive code if you don't want the slider scales while window resizing
+		function ScaleSlider() {
+			var refSize = jssor_1_slider.$Elmt.parentNode.clientWidth;
+			if (refSize) {
+				refSize = Math.min(refSize, 1032);
+				jssor_1_slider.$ScaleWidth(refSize);
+			} else {
+				window.setTimeout(ScaleSlider, 30);
+			}
+		}
+		ScaleSlider();
+		$(window).bind("load", ScaleSlider);
+		$(window).bind("resize", ScaleSlider);
+		$(window).bind("orientationchange", ScaleSlider);
+		//responsive code end
+	});
+</script>
+<style>
+.annotation {
+	position: absolute;
+	top: 200px;
+	left: -380px;
+	width: 350px;
+	height: 30px;
+	background-color: rgba(0, 0, 0, 0.5);
+	font-size: 20px;
+	color: #ffffff;
+	line-height: 30px;
+	text-align: center;
+	border-radius: 8px;
+}
+</style>
+</head>
+<body>
+	<section class="page-header">
+		<a href="./index.html" class="logo" ><img src="logo.png" />&nbsp;&nbsp;IDE</a> 
+		
+		<a href="plugins/Accela_2.0.3.5.jar" class="btn">Download .plugin</a> 
+		<a href="docs/Accela Eclipse IDE- UserManual 2.0.1.3.pdf" class="btn">User Manual</a> 
+		<a href="http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Ftasks%2Ftasks-124.htm" class="btn">Installation Help</a>
+
+	</section>
+	<section class="main-content">
+	<div class="leftPanel">&nbsp;</div>
+		<div id="jssor_1" style="position: relative; margin: 0 auto; top: 0px; left: 0px; width: 1032px; height: 550px; overflow: hidden; visibility: hidden;">
+			<!-- Loading Screen -->
+			<div data-u="loading" style="position: absolute; top: 0px; left: 0px;">
+				<div style="filter: alpha(opacity = 70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+				<div style="position: absolute; display: block; background: url('IDEFeatures/img/loading.gif') no-repeat center center; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+			</div>
+			<div data-u="slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 1032px; height: 550px; overflow: hidden;">
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/home.jpg" />
+					<div data-u="caption" data-t="" class="annotation" style="color: #333;background-color:transparent;width:500px;height: 350px;top: 100px;left: 150px;">
+					<h3>Accela Plugin Benefits</h3>
+					<div>Less time and effort</div>
+					<div>Real collaboration tools</div>
+					<div>Enforce project or company standards</div>
+					<div>Code completion or code insight</div>
+					<div>Source Code management</div>
+					<div>Script testing tools</div>
+					<div>Compilation tools</div>
+					<div>And much more ...</div>
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/installation.png" />
+					<div data-u="caption" data-t="1" class="annotation" style="width:420px">Easy to install</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/createProject.png" />
+					<div data-u="caption" data-t="2" class="annotation" style="height:70px">Import your project into eclipse with few settings</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/projectView.png" />
+					<div data-u="caption" data-t="3" class="annotation" style="height:70px">Detailed project view. everything you need is at your finger tips</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/recordView.png" />
+					<div data-u="caption" data-t="4" class="annotation" style="height:70px">Detailed record type view with all related scripts and expressions  
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/scriptEditor.png" />
+					<div data-u="caption" data-t="5" class="annotation" style="width:500px;height: 200px;">
+					<h3>JavaScript Editor</h3>
+					<div>Syntax coloring</div>
+					<div>Errors detection</div>
+					<div>Code auto-completion for js and ScriptRoot (aa)</div>
+					<div>Code Formatting</div>				
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/testScript.png" />
+					<div data-u="caption" data-t="6" class="annotation" style="height:70px">Test your scripts directly from the IDE  
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/scriptContextMenu.png" />
+					<div data-u="caption" data-t="7" class="annotation" style="width:500px;height: 350px;">
+					<h3>Rich Context Menu</h3>
+					<div>Compare with server version</div>
+					<div>Compare with local version</div>
+					<div>Push to server</div>
+					<div>Get latest version</div>
+					<div>Check file history</div>
+					<div>Check file Properties (owner,date,...)</div>
+					<div>Create new Scripts and Expressions</div>
+					<div>Generate base expression and script</div>										
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/syncView.png" />
+					<div data-u="caption" data-t="8" class="annotation" style="width:400px;height: 300px;">
+					<h3>Server Synchronization</h3>
+					<div>Synchronize workspace</div>
+					<div>Incoming changes</div>
+					<div>Detect Conflict</div>
+					<div>Outgoing changes</div>
+					<div>Compare on spot</div>
+					<div>Mark as merged</div>								
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/scriptGeneration.png" />
+					<div data-u="caption" data-t="9" class="annotation" style="width:580px">Generate your event and base scripts with a simple wizard 
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/notificationEngine.png" />
+					<div data-u="caption" data-t="10" class="annotation" style="width:500px;height: 200px;">
+					<h3>Notification Engine</h3>
+					<div>Get notified for any important change on the server</div>
+					<div>Useful to monitor shared libraries and master scripts</div>							
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/queryView.png" />
+					<div data-u="caption" data-t="11" class="annotation" style="width:580px">Execute queries from IDE, database access is not required 
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/knowledgeBase.png" />
+					<div data-u="caption" data-t="12" class="annotation" style="width:220px; height:200px">Shared Knowledge Base among all projects with common libraries and examples 
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/releaseNotes.png" />
+					<div data-u="caption" data-t="13" class="annotation" style="width:350px; height:60px">Track your changes with the Releases Management 
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/serverLog.png" />
+					<div data-u="caption" data-t="14" class="annotation" style="width:450px;">Powerful Business servers log viewer 
+					</div>
+				</div>
+				<div data-p="112.50" style="display: none;">
+					<img data-u="image" src="IDEFeatures/img/home.jpg" />
+					<div data-u="caption" data-t="15" class="annotation" style="width:600px;height: 100px;">
+					<div>Find out more</div>
+		<a href="plugins/Accela_2.0.3.5.jar" class="btn2">Download .plugin</a> 
+		<a href="docs/Accela Eclipse IDE- UserManual 2.0.1.3.pdf" class="btn2">User Manual</a> 
+		<a href="http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Ftasks%2Ftasks-124.htm" class="btn2">Installation Help</a>
+
+					</div>
+				</div>
+			</div>
+			<!-- Bullet Navigator -->
+			<div data-u="navigator" class="jssorb01" style="bottom: 16px; right: 16px;">
+				<div data-u="prototype" style="width: 12px; height: 12px;"></div>
+			</div>
+			<!-- Arrow Navigator -->
+			<span data-u="arrowleft" class="jssora02l" style="top: 0px; left: 8px; width: 55px; height: 55px;" data-autocenter="2"></span> <span data-u="arrowright" class="jssora02r"
+				style="top: 0px; right: 8px; width: 55px; height: 55px;" data-autocenter="2"></span>
+		</div>
+
+	</section>
+
+
+
+
+
+
+
+
+</body>
+</html>

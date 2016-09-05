@@ -1,0 +1,310 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	background-image: linear-gradient(90deg, #fff, #f1f2f3,#fff);
+	line-height: 1.5;
+	color: #606c71;
+}
+
+a {
+	color: #1e6bb8;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.logo {
+	font-weight: bold;
+	margin-top: 15px;
+	margin-bottom: 10px;
+	color: rgba(255, 255, 255, 0.7);
+	transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.logo img {
+	height: 26px;
+}
+
+.logo:hover {
+	text-decoration: none;
+}
+
+.btn2 {
+	display: inline-block;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 0.2rem 1rem;
+	color: rgba(255, 255, 255, 0.7);
+	background-color: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.2);
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 0.3rem;
+	transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+.btn2:hover {
+	color: rgba(255, 255, 255, 0.8);
+	text-decoration: none;
+	background-color: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn2+.btn2 {
+	margin-top: 1rem;
+	margin-left: 1rem;
+}
+
+.btn {
+	display: inline-block;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	color: rgba(255, 255, 255, 0.7);
+	background-color: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.2);
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 0.3rem;
+	transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+.btn+.btn {
+	margin-left: 1rem;
+}
+
+.btn:hover {
+	color: rgba(255, 255, 255, 0.8);
+	text-decoration: none;
+	background-color: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+@media screen and (min-width: 64em) {
+	.btn {
+		padding: 0.2rem 1rem;
+	}
+	.logo {
+	float:left!important;
+	margin-left: 12%;
+	}
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+	.btn {
+		padding: 0.6rem 0.9rem;
+		font-size: 0.9rem;
+	}
+}
+
+@media screen and (max-width: 42em) {
+	.btn {
+		display: block;
+		width: 100%;
+		padding: 0.75rem;
+		font-size: 0.9rem;
+	}
+	.btn+.btn {
+		margin-top: 1rem;
+		margin-left: 0;
+	}
+}
+.leftPanel{
+	display:block;
+	float: left;	
+	width:1000px;
+}
+.page-header {
+	color: #fff;
+	text-align: center;
+	background-color: #159957;
+	background-image: linear-gradient(120deg, #159957, #155799);
+}
+
+@media screen and (min-width: 100) {
+	.page-header {
+		padding: 5rem 6rem;
+	}
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+	.page-header {
+		padding: 3rem 4rem;
+	}
+}
+
+@media screen and (max-width: 42em) {
+	.page-header {
+		padding: 2rem 1rem;
+	}
+}
+
+.project-name {
+	margin-top: 0;
+	margin-bottom: 0.1rem;
+}
+
+@media screen and (min-width: 64em) {
+	.project-name {
+		font-size: 3.25rem;
+	}
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+	.project-name {
+		font-size: 2.25rem;
+	}
+}
+
+@media screen and (max-width: 42em) {
+	.project-name {
+		font-size: 1.75rem;
+	}
+}
+
+.project-tagline {
+	margin-bottom: 2rem;
+	font-weight: normal;
+	opacity: 0.7;
+}
+
+@media screen and (min-width: 64em) {
+	.project-tagline {
+		font-size: 1.25rem;
+	}
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+	.project-tagline {
+		font-size: 1.15rem;
+	}
+}
+
+@media screen and (max-width: 42em) {
+	.project-tagline {
+		font-size: 1rem;
+	}
+}
+
+.site-footer {
+	padding-top: 2rem;
+	margin-top: 2rem;
+	border-top: solid 1px #eff0f1;
+}
+
+.site-footer-owner {
+	display: block;
+	font-weight: bold;
+}
+
+.site-footer-credits {
+	color: #819198;
+}
+
+@media screen and (min-width: 64em) {
+	.site-footer {
+		font-size: 1rem;
+	}
+}
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+	.site-footer {
+		font-size: 1rem;
+	}
+}
+
+@media screen and (max-width: 42em) {
+	.site-footer {
+		font-size: 0.9rem;
+	}
+}
+
+/* jssor slider bullet navigator skin 01 css */
+/*
+        .jssorb01 div           (normal)
+        .jssorb01 div:hover     (normal mouseover)
+        .jssorb01 .av           (active)
+        .jssorb01 .av:hover     (active mouseover)
+        .jssorb01 .dn           (mousedown)
+        */
+.jssorb01 {
+	position: absolute;
+}
+
+.jssorb01 div, .jssorb01 div:hover, .jssorb01 .av {
+	position: absolute;
+	/* size of bullet elment */
+	width: 12px;
+	height: 12px;
+	filter: alpha(opacity = 70);
+	opacity: .7;
+	overflow: hidden;
+	cursor: pointer;
+	border: #000 1px solid;
+}
+
+.jssorb01 div {
+	background-color: gray;
+}
+
+.jssorb01 div:hover, .jssorb01 .av:hover {
+	background-color: #d3d3d3;
+}
+
+.jssorb01 .av {
+	background-color: #fff;
+}
+
+.jssorb01 .dn, .jssorb01 .dn:hover {
+	background-color: #555555;
+}
+
+/* jssor slider arrow navigator skin 02 css */
+/*
+        .jssora02l                  (normal)
+        .jssora02r                  (normal)
+        .jssora02l:hover            (normal mouseover)
+        .jssora02r:hover            (normal mouseover)
+        .jssora02l.jssora02ldn      (mousedown)
+        .jssora02r.jssora02rdn      (mousedown)
+        */
+.jssora02l, .jssora02r {
+	display: block;
+	position: absolute;
+	/* size of arrow element */
+	width: 55px;
+	height: 55px;
+	cursor: pointer;
+	background: url('../IDEFeatures/img/a02.png') no-repeat;
+	overflow: hidden;
+}
+
+.jssora02l {
+	background-position: -3px -33px;
+}
+
+.jssora02r {
+	background-position: -63px -33px;
+}
+
+.jssora02l:hover {
+	background-position: -123px -33px;
+}
+
+.jssora02r:hover {
+	background-position: -183px -33px;
+}
+
+.jssora02l.jssora02ldn {
+	background-position: -3px -33px;
+}
+
+.jssora02r.jssora02rdn {
+	background-position: -63px -33px;
+}
