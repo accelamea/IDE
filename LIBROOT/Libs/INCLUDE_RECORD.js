@@ -1,5 +1,5 @@
 /**
- * this object is used to read and modify any record type in accela
+ * this object is used to read any Accela records
  */
 /*-USER-----------DATE----------------COMMENTS----------------------------------------------------------/
  | SLEIMAN         06/01/2016 10:11:10 formatting code
@@ -72,6 +72,13 @@ Record.prototype.setCreatedBy = function(pubUserID) {
  */
 Record.prototype.getCustomID = function() {
 	return this.altId;
+}
+Record.prototype.updateCustomID = function(id) {
+	var result = aa.cap.updateCapAltID(this.capId, id)
+	if (!result.getSuccess()) {
+		throw result.getErrorMessage()
+	}
+
 }
 Record.prototype.getScheduledDate = function() {
 	var date = aa.cap.getCapDetail(this.capId).getOutput().getScheduledDate()
@@ -1017,8 +1024,29 @@ Record.getLookupVal = function(sControl, sValue) {
 	return desc;
 }
 
-Record.prototype.updateTaskAndHandleDisposition = function(task, status) {
-	updateTaskAndHandleDisposition(task, status, this.capId)
+Record.prototype.updateTaskAndHandleDisposition = function(taskName, taskStatus, taskComments) {
+	try {
+
+		var taskResult = aa.workflow.getTask(this.capId, taskName);
+
+		if (!taskResult.getSuccess()) {
+			throw "Error while getting task " + taskResult.getErrorMessage();
+		}
+		task = taskResult.getOutput();
+		task.setDisposition(taskStatus);
+		if (taskComments != null && taskComments != "") {
+			task.setDispositionComment(taskComments);
+		}
+		var updateResult = aa.workflow.handleDisposition(task.getTaskItem(), this.capId);
+		if (!updateResult.getSuccess()) {
+			throw "Error while updating workflow " + updateResult.getErrorMessage();
+		}
+
+	} catch (e) {
+		aa.debug("**EXCEPTION in Record.updateTaskAndHandleDisposition", e);
+		throw "ERROR AT Record.updateTaskAndHandleDisposition: " + e;
+	}
+
 }
 Record.prototype.getPriority = function() {
 	var cdScriptObjResult = aa.cap.getCapDetail(this.capId).getOutput();
@@ -1710,7 +1738,7 @@ Record.createNew = function(type, desc) {
 	record.setCapClass("COMPLETE");
 	// create Detail Record
 	var capDetailModel = aa.cap.getCapDetail(newId).getOutput();
-	if(capDetailModel == null){
+	if (capDetailModel == null) {
 		capModel = aa.cap.newCapScriptModel().getOutput();
 		capDetailModel = capModel.getCapModel().getCapDetailModel();
 		capDetailModel.setCapID(newId);
@@ -2029,6 +2057,7 @@ Record.prototype.logMsg = function(msgLabel, msgContent, logLevel) {
  * 
  * @returns {String} the name of the updated ASIT, applicable only in ASIUB and ASIUA events
  */
+
 Record.prototype.getApplicationSpecificInfoUpdatedTable = function() {
 
 	var updatedTable = "";
