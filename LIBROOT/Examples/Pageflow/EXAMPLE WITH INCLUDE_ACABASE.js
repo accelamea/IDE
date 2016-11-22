@@ -1,11 +1,11 @@
 /*------------------------------------------------------------------------------------------------------/
-| Program		: ACA_PRCR_RENEWAL_INFORMATION_PAGEFLOW.js
+| Program		: 
 | Event			: 
 |
 | Usage			: 
-| Notes			: auto generated Record Script by Accela Eclipse Plugin 
-| Created by	: SLEIMAN
-| Created at	: 08/11/2016 13:47:49
+| Notes			: 
+| Created by	: 
+| Created at	:
 |
 /------------------------------------------------------------------------------------------------------*/
 
