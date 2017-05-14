@@ -5,6 +5,7 @@
  | SLEIMAN         06/01/2016 10:11:10 formatting code
  | SLEIMAN         06/01/2016 11:29:29 fixing updateAsitColumns bug, invalid indexes
  | SLEIMAN         06/01/2016 11:32:16 fixing asittoarray function
+ | SLEIMAN         14/05/2017 10:12:16 adding service provider code and performance issues
  /-----END CHANGE LOG-----------------------------------------------------------------------------------*/
 
 var GLOBAL_EVAL = eval;
