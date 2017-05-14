@@ -8,7 +8,12 @@
  /-----END CHANGE LOG-----------------------------------------------------------------------------------*/
 
 var GLOBAL_EVAL = eval;
-function Record(id) {
+function Record(id, serviceProviderCode) {
+	if (serviceProviderCode == null || serviceProviderCode == "") {
+		serviceProviderCode = aa.getServiceProviderCode()
+	}
+
+	this.serviceProviderCode = serviceProviderCode
 	if (id == null || id == "") {
 		var constructorName = (this.constructor == null) ? "undefined" : this.constructor.name;
 		throw "ID cannot be null or empty when initialize [" + constructorName + "]";
@@ -31,7 +36,9 @@ function Record(id) {
 		// logDebug("**id instance of String customID")
 		id = id + "";
 		this.altId = id;
-		this.capId = aa.cap.getCapID(id).getOutput();
+		var capServer = com.accela.aa.emse.dom.service.CachedService.getInstance().getCapService()
+
+		this.capId = capServer.getCapID(this.serviceProviderCode, id, aa.getAuditID())
 
 	}
 	if (this.capId == null) {
@@ -39,16 +46,31 @@ function Record(id) {
 	}
 
 }
+/**
+ * return the capModel
+ * 
+ * @returns {capModel}
+ */
+Record.prototype.getCapModel = function() {
+
+	var capRes = aa.cap.getCapBasicInfo(this.capId)
+	if (!capRes.getSuccess()) {
+		throw capRes.getErrorMessage()
+	}
+	var capModel = capRes.getOutput();
+	if (!capModel) {
+		throw "Could not get capModel for " + this
+	}
+	return capModel.getCapModel();
+
+}
 
 /**
- * get the user id who created to record
+ * 
+ * @returns created by user
  */
 Record.prototype.getCreatedBy = function() {
-
-	var cap = aa.cap.getCap(this.capId).getOutput();
-	var capModel = cap.getCapModel();
-
-	return capModel.getCreatedBy();
+	return this.getCapModel().getCreatedBy();
 }
 
 Record.prototype.isComplete = function() {
@@ -58,12 +80,8 @@ Record.prototype.isComplete = function() {
  * set the user id who created to record
  */
 Record.prototype.setCreatedBy = function(pubUserID) {
-
-	var cap = aa.cap.getCap(this.capId).getOutput();
-	var capModel = cap.getCapModel();
-
+	var capModel = this.getCapModel();
 	capModel.setCreatedBy(pubUserID);
-
 	aa.cap.editCapByPK(capModel);
 }
 
@@ -117,9 +135,13 @@ Record.prototype.getASIT = function(tname, ignoreCache) {
 	if (!ignoreCache && this.CACHEMAP.containsKey(tname)) {
 		ret = this.CACHEMAP.get(tname);
 	} else {
-		var asit = aa.appSpecificTableScript.getAppSpecificTableModel(this.capId, tname).getOutput();
+		var asitRes = aa.appSpecificTableScript.getAppSpecificTableModel(this.capId, tname)
+		if (!asitRes.getSuccess()) {
+			throw "AGENCY>>" + aa.getServiceProviderCode() + ":" + asitRes.getErrorMessage()
+		}
+		asit = asitRes.getOutput()
 		if (asit == null) {
-			throw "Couldn't load ASI Table " + tname + ", maybe it is empty or Invalid cap ID " + this.capId;
+			throw "Couldn't load ASI Table " + tname + ", maybe it is empty";
 		}
 
 		ret = Record.asitToArray(asit);
@@ -187,7 +209,14 @@ Record.prototype.getASI = function(asiGroup, name, defaultValue) {
 	if (typeof defaultValue === "undefined") {
 		defaultValue = "";
 	}
-	var valDef = aa.appSpecificInfo.getAppSpecificInfos(this.capId, asiGroup, name).getOutput();
+	var asiServer = com.accela.aa.emse.dom.service.CachedService.getInstance().getAppSpecificInfoService()
+
+	var valList = asiServer.getAppSpecificInfos(this.capId, asiGroup, name, aa.getAuditID());
+	var valDef = [];
+	if (valList != null) {
+		valDef = valList.toArray();
+	}
+
 	if (valDef.length > 0) {
 		val = valDef[0].getChecklistComment()
 		if (val == null || val + "" == "") {
@@ -199,7 +228,6 @@ Record.prototype.getASI = function(asiGroup, name, defaultValue) {
 
 	return val;
 }
-
 /**
  * copy values of passed ASIT from specific record into current record if there
  * is difference in names between source ASIT column names and destination
@@ -361,7 +389,7 @@ Record.prototype.createOrUpdateFee = function(fcode, fsched, fqty, fperiod, pDup
  * @param [bCompleteWorkflow=true]
  */
 Record.prototype.sendBack = function(bCompleteWorkflow) {
-	var cap = aa.cap.getCap(this.capId).getOutput().getCapModel();
+	var cap = this.getCapModel();
 
 	cap.setCapClass("EDITABLE");
 	aa.cap.editCapByPK(cap);
@@ -695,7 +723,8 @@ Record.prototype.updateASITColumns = function(asit) {
 	return edited;
 }
 
-Record.prototype.scheduleInspection = function(inspectionGroup, checkListGroup, inspectionDate, autoAssign, units, inspector) {
+Record.prototype.scheduleInspection = function(inspectionGroup, checkListGroup, inspectionDate, autoAssign, units, inspector, startTime, AMPM, endTime, AMPMEND, comment) {
+
 	var inspModel = aa.inspection.getInspectionScriptModel().getOutput().getInspection();
 	var activityModel = inspModel.getActivity();
 	var inspTypeModel = Record.getInspectionTypeModel(inspectionGroup, checkListGroup);
@@ -712,6 +741,21 @@ Record.prototype.scheduleInspection = function(inspectionGroup, checkListGroup, 
 
 	activityModel.setInspectionGroup(inspectionGroup);
 	activityModel.setActivityDate(inspectionDate);
+	if (startTime != null) {
+		activityModel.setTime2(startTime);
+	}
+	if (AMPM != null) {
+		activityModel.setTime1(AMPM);
+	}
+
+	if (endTime != null) {
+		activityModel.setActEndTime2(endTime);
+	}
+
+	if (AMPMEND != null) {
+		activityModel.setActEndTime1(AMPMEND);
+	}
+
 	if (units != null && units != "") {
 		activityModel.setInspUnits(units);
 	} else {
@@ -746,6 +790,10 @@ Record.prototype.scheduleInspection = function(inspectionGroup, checkListGroup, 
 	}
 	if (inspectorObj != null) {
 		logDebug("**Scheduling inspection [" + inspectionGroup + "].[" + checkListGroup + "] for [" + inspectorObj.getUserID() + "]");
+	}
+	if (comment != null) {
+		var commentModel = inspModel.getComment();
+		commentModel.setText(comment);
 	}
 	var schedRes = aa.inspection.scheduleInspection(inspModel, inspectorObj);
 
@@ -1033,6 +1081,9 @@ Record.prototype.updateTaskAndHandleDisposition = function(taskName, taskStatus,
 			throw "Error while getting task " + taskResult.getErrorMessage();
 		}
 		task = taskResult.getOutput();
+
+		task.setSysUser(aa.person.getCurrentUser().getOutput());
+
 		task.setDisposition(taskStatus);
 		if (taskComments != null && taskComments != "") {
 			task.setDispositionComment(taskComments);
@@ -1043,10 +1094,9 @@ Record.prototype.updateTaskAndHandleDisposition = function(taskName, taskStatus,
 		}
 
 	} catch (e) {
-		aa.debug("**EXCEPTION in Record.updateTaskAndHandleDisposition", e);
-		throw "ERROR AT Record.updateTaskAndHandleDisposition: " + e;
+		aa.debug("**EXCEPTION in Record.updateTaskAndHandleDisposition, running system one", e);
+		updateTaskAndHandleDisposition(taskName, taskStatus, this.capId)
 	}
-
 }
 Record.prototype.getPriority = function() {
 	var cdScriptObjResult = aa.cap.getCapDetail(this.capId).getOutput();
@@ -1111,6 +1161,17 @@ Record.prototype.activateTask = function(task, desactivateCurrent) {
 			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, null, null);
 		}
 	}
+}
+
+/*
+ * Added by : Omar Maani Date : 13/10/2016 Purpose : to assign new workflow to
+ * record
+ * 
+ */
+Record.prototype.deleteAndAssignWorkflow = function(newProcessCode, isReallyDelete) {
+
+	var success = aa.workflow.deleteAndAssignWorkflow(this.capId, newProcessCode, isReallyDelete);
+	return success
 }
 
 Record.prototype.getExpirationDate = function() {
@@ -1251,6 +1312,112 @@ Record.prototype.isTaskActive = function(task) {
 Record.prototype.getCapType = function() {
 	return aa.cap.getCap(this.capId).getOutput().getCapType();
 }
+/**
+ * this function search for similar records of capType using array of ASIs
+ * 
+ * @param {Record}
+ *            record that holds the ASI values.
+ * @param arrASIFields
+ *            Array of ASI filters e.g({"IVIS::Profile Information::Vocational
+ *            License"})
+ * @param capType
+ *            CapType of similar record
+ * @returns {Record object or no similar}
+ */
+Record.FindSimilarRecord = function(recSource, arrASIFields, capType) {
+	if (!recSource) {
+		throw "Invalid record";
+	}
+	var matchRecord = null;
+	if (arrASIFields.length > 0) {
+		var firstField = Record.parseFieldName(arrASIFields[0]);
+		var firstFieldValue = recSource.getASI(firstField.TABLENAME, firstField.NAME, "");
+		if (firstFieldValue == null || String(firstFieldValue).trim().equals(String(''))) {
+			throw "Invalid " + firstField.NAME;
+		}
+
+		var records = Record.getByAsi(firstField.NAME, firstFieldValue, capType);
+		if (records.length > 0) {
+			for (x in records) {
+				var rec = records[x];
+				if (rec.getCapID().toString() + "" != recSource.capId.toString() + "") {
+					for (var i = 1; i < arrASIFields.length; i++) {
+						var field = Record.parseFieldName(arrASIFields[i]);
+						var curValue = recSource.getASI(field.TABLENAME, field.NAME, "");
+						var recValue = rec.getASI(field.TABLENAME, field.NAME, "");
+						var match = curValue == recValue;
+						if (!match) {
+							break;
+						}
+					}
+					if (match) {
+						matchRecord = rec;
+						break;
+					}
+				}
+			}
+		}
+	}
+	return matchRecord;
+}
+/**
+ * this function search for similar records of capType using array of ASIs
+ * 
+ * @param {Record}
+ *            record that holds the ASI values.
+ * @param arrASIFields
+ *            Array of ASI filters e.g({"IVIS::Profile Information::Vocational
+ *            License::VALUETOCOMPARE"})
+ * @param capType
+ *            CapType of similar record
+ * @returns {Record object or no similar}
+ */
+Record.FindSimilarRecordWithData = function(recSource, arrASIFields, capType) {
+	if (!recSource) {
+		throw "Invalid record";
+	}
+	var matchRecord = null;
+	if (arrASIFields.length > 0) {
+		var firstField = Record.parseFieldNameWithData(arrASIFields[0]);
+		var firstFieldValue = "";
+		if (firstField.COMPAREVALUE) {
+			firstFieldValue = firstField.COMPAREVALUE;
+		} else {
+			firstFieldValue = recSource.getASI(firstField.TABLENAME, firstField.NAME, "");
+		}
+		if (firstFieldValue == null || String(firstFieldValue).trim().equals(String(''))) {
+			throw "Invalid " + firstField.NAME;
+		}
+
+		var records = Record.getByAsi(firstField.NAME, firstFieldValue, capType);
+		if (records.length > 0) {
+			for (x in records) {
+				var rec = records[x];
+				if (rec.getCapID().toString() + "" != recSource.capId.toString() + "") {
+					for (var i = 1; i < arrASIFields.length; i++) {
+						var field = Record.parseFieldNameWithData(arrASIFields[i]);
+						var curValue = "";
+						if (field.COMPAREVALUE) {
+							curValue = field.COMPAREVALUE;
+						} else {
+							curValue = recSource.getASI(field.TABLENAME, field.NAME, "");
+						}
+						var recValue = rec.getASI(field.TABLENAME, field.NAME, "");
+						match = curValue == recValue;
+						if (!match) {
+							break;
+						}
+					}
+					if (match) {
+						matchRecord = rec;
+						break;
+					}
+				}
+			}
+		}
+	}
+	return matchRecord;
+}
 Record.prototype.findSimilarRecords = function(arrASIFields, sameLicense) {
 	var ret = [];
 	if (arrASIFields.length > 0) {
@@ -1330,9 +1497,11 @@ Record.prototype.getLicenses = function() {
  * @param {(string|CapIDModel)}
  *            parentAltId - custom id or cap id for the parent record
  */
-Record.prototype.addParent = function(parentAltId) {
-
-	var parentRecord = new Record(parentAltId);
+Record.prototype.addParent = function(parentAltId, serviceProviderCode) {
+	if (serviceProviderCode == null || serviceProviderCode == "") {
+		serviceProviderCode = aa.getServiceProviderCode();
+	}
+	var parentRecord = new Record(parentAltId, serviceProviderCode);
 
 	parentRecord.addChild(this.getCapID());
 }
@@ -1343,9 +1512,11 @@ Record.prototype.addParent = function(parentAltId) {
  * @param {(string|CapIDModel)}
  *            childAltId - custom id or cap id for the child record
  */
-Record.prototype.addChild = function(childAltId) {
-
-	var childRecord = new Record(childAltId);
+Record.prototype.addChild = function(childAltId, serviceProviderCode) {
+	if (serviceProviderCode == null || serviceProviderCode == "") {
+		serviceProviderCode = aa.getServiceProviderCode();
+	}
+	var childRecord = new Record(childAltId, serviceProviderCode);
 
 	var result = aa.cap.createAppHierarchy(this.getCapID(), childRecord.getCapID());
 
@@ -1449,7 +1620,7 @@ Record.prototype.getApplicationName = function() {
 	return this.getCap().getSpecialText();
 }
 Record.prototype.setApplicationName = function(name) {
-	var cap = this.getCap().getCapModel();
+	var cap = this.getCapModel();
 	cap.setSpecialText(name);
 	aa.cap.editCapByPK(cap);
 }
@@ -1627,8 +1798,7 @@ Record.prototype.assignCurrentWfTaskToUser = function(userId) {
  */
 Record.prototype.setCapClass = function(capCalss) {
 
-	var cap = aa.cap.getCap(this.capId).getOutput();
-	var capModel = cap.getCapModel();
+	var capModel = this.getCapModel()
 	capModel.setCapClass(capCalss);
 	aa.cap.editCapByPK(capModel);
 }
@@ -1911,6 +2081,22 @@ Record.parseFieldName = function(fieldfullname) {
 
 	return ret;
 }
+Record.parseFieldNameWithData = function(fieldfullname) {
+	var ret = {};
+
+	if (fieldfullname.indexOf("::" > 0)) {
+		var parts = fieldfullname.split("::");
+		if (parts.length != 4) {
+			throw "invalid field full name";
+		}
+		ret.TYPE = parts[0];
+		ret.TABLENAME = parts[1];
+		ret.NAME = parts[2];
+		ret.COMPAREVALUE = parts[3];
+	}
+
+	return ret;
+}
 
 Record.getProxyClass = function(clazz) {
 	return aa.proxyInvoker.newInstance(clazz).getOutput();
@@ -2055,9 +2241,9 @@ Record.prototype.logMsg = function(msgLabel, msgContent, logLevel) {
 
 /**
  * 
- * @returns {String} the name of the updated ASIT, applicable only in ASIUB and ASIUA events
+ * @returns {String} the name of the updated ASIT, applicable only in ASIUB and
+ *          ASIUA events
  */
-
 Record.prototype.getApplicationSpecificInfoUpdatedTable = function() {
 
 	var updatedTable = "";
@@ -2208,6 +2394,152 @@ Record.prototype.sendReportAsEmail = function(reportName, mailFrom, arrTo, repor
 	}
 
 }
+
+/**
+ * Check if any required custom field has value empty or null.
+ */
+Record.prototype.validateRequiredCustomFields = function() {
+
+	var customFieldInfo = this.getCustomFieldsInfo();
+
+	if (!customFieldInfo) {
+		throw "WARNING: no customFieldInfo on this CAP:" + this;
+	}
+	var exceptionMessages = [];
+	for (field in customFieldInfo) {
+
+		var appCustomFieldInfo = customFieldInfo[field];
+		var fieldValue = appCustomFieldInfo.getChecklistComment();
+		var fieldLabel = appCustomFieldInfo.getFieldLabel();
+		var fieldRequired = appCustomFieldInfo.getAttributeValueReqFlag();
+
+		if (fieldRequired == "Y") {
+			if (fieldValue == null || fieldValue == "") {
+				exceptionMessages.push(fieldLabel);
+			}
+		}
+	}
+	if (exceptionMessages.length > 0) {
+		throw exceptionMessages.join("<BR/>");
+	}
+
+}
+
+/**
+ * Get All custom fields .
+ */
+Record.prototype.getCustomFieldsInfo = function() {
+	var customFieldInfo = null;
+	var s_result = aa.appSpecificInfo.getByCapID(this.capId);
+	if (!s_result.getSuccess()) {
+		throw "ERROR: Failed to customFieldInfo in getCustomFieldsInfo: " + s_result.getErrorMessage();
+	}
+	return s_result.getOutput();
+
+}
+
+/**
+ * Get WorkFlow Task by task name.
+ * 
+ * @param {string}
+ *            string - WF Task name
+ * @returns {TaskItemModel}
+ */
+Record.prototype.getWorkFlowTask = function(taskName) {
+	var task = null;
+	if (taskName == null || String(taskName).trim().equals(String(''))) {
+		throw "Invalid task name!";
+	}
+
+	var taskResult = aa.workflow.getTask(this.capId, taskName);
+	if (!taskResult.getSuccess()) {
+		throw taskResult.getErrorMessage();
+	}
+	return taskResult.getOutput();
+
+}
+/**
+ * Get Task specific info field value.
+ * 
+ * @param {string}
+ *            string - WF Task name
+ * @param {string}
+ *            string - TSI field Name
+ * @param {string}
+ *            defaultValue - return default value if not found
+ * @returns {string} string - TSI field value
+ */
+Record.prototype.getTSI = function(taskName, fieldName, defaultValue) {
+	if (typeof defaultValue === "undefined") {
+		defaultValue = "";
+	}
+	try {
+
+		var taskResult = aa.workflow.getTask(this.capId, taskName);
+		if (!taskResult.getSuccess()) {
+			throw taskResult.getErrorMessage()
+
+		}
+
+		var task = taskResult.getOutput();
+		var processID = task.getProcessID();
+		var stepNumber = task.getStepNumber();
+
+		var tsiResult = aa.taskSpecificInfo.getTaskSpecifiInfoByDesc(this.capId, processID, stepNumber, fieldName);
+		if (!tsiResult.getSuccess()) {
+			throw tsiResult.getErrorMessage();
+		}
+		var tsi = tsiResult.getOutput();
+		if (tsi == null) {
+			throw "TSI result is null";
+		}
+		var tsiInfoModel = tsi.getTaskSpecificInfoModel();
+		val = tsiInfoModel.getChecklistComment();
+		if (val == null || val == "") {
+			val = defaultValue;
+		}
+	} catch (e) {
+		logDebug("ERROR in Record.prototype.getTSI, using default value:" + e)
+		val = defaultValue;
+	}
+	return val;
+}
+Record.prototype.editTaskASI = function(taskName, fieldName, fieldValue) {
+	var taskResult = aa.workflow.getTask(this.capId, taskName);
+
+	if (!taskResult.getSuccess()) {
+		throw "**ERROR: Failed to get workflow object: " + taskResult.getErrorMessage();
+	}
+
+	var task = taskResult.getOutput();
+	var processID = task.getProcessID();
+	var stepNumber = task.getStepNumber();
+
+	var tsiResult = aa.taskSpecificInfo.getTaskSpecifiInfoByDesc(this.capId, processID, stepNumber, fieldName);
+	if (!tsiResult.getSuccess()) {
+		throw "**ERROR: Failed to get Task Specific Info objects: " + tsiResult.getErrorMessage();
+
+	}
+
+	var tsi = tsiResult.getOutput();
+	if (tsi == null) {
+		throw "No task specific info field called " + fieldName + " found for task " + taskName;
+
+	}
+
+	var tsiArray = new Array();
+	var tsiInfoModel = tsi.getTaskSpecificInfoModel();
+	tsiInfoModel.setChecklistComment(fieldValue);
+	tsiArray.push(tsiInfoModel);
+	tsiResult = aa.taskSpecificInfo.editTaskSpecInfos(tsiArray);
+	if (!tsiResult.getSuccess()) {
+		throw "**ERROR: Failed to Update Task Specific Info : " + tsiResult.getErrorMessage();
+
+	}
+	logDebug("Successfully updated TSI Task=" + taskName + " Item=" + fieldName + " Value=" + fieldValue);
+
+}
+
 /**
  * Get Communication Helper.
  * 
@@ -2217,10 +2549,103 @@ Record.getCommunicationHelper = function() {
 	return aa.proxyInvoker.newInstance("com.accela.aa.communication.CommunicationHelper").getOutput();
 }
 
+Record.prototype.addCondition = function(comment, impactCode, conditionStatus, issuerUserId, commentAr) {
+
+	var capCondition = aa.capCondition.getNewConditionScriptModel().getOutput();
+
+	if (!commentAr) {
+		commentAr = comment;
+	}
+	capCondition.setCapID(this.capId);
+	capCondition.setAuditStatus("A");
+	capCondition.setAuditID(currentUserID);
+
+	capCondition.setConditionDescription(comment);
+	capCondition.setPublicDisplayMessage(comment);
+	capCondition.setConditionComment(comment);
+	capCondition.setLongDescripton(comment);
+
+	capCondition.setImpactCode(impactCode);
+	capCondition.setConditionStatus(conditionStatus);
+	capCondition.setDisplayConditionNotice("Y");
+	capCondition.setIncludeInShortDescription("Y");
+
+	var sysUserModelObj = aa.people.getSysUserByID(issuerUserId).getOutput();
+	capCondition.setIssuedByUser(sysUserModelObj);
+	capCondition.setStatusByUser(sysUserModelObj);
+
+	var condRes = aa.capCondition.createCapCondition(capCondition)
+	if (!condRes.getSuccess()) {
+		throw condRes.getErrorMessage()
+	}
+	var condid = condRes.getOutput();
+
+	capCondition.setConditionNumber(condid)
+	capCondition = aa.condition.getCondition(capCondition, "ar_AE").getOutput()
+
+	capCondition.setConditionDescription(commentAr);
+	capCondition.setPublicDisplayMessage(commentAr);
+	capCondition.setConditionComment(commentAr);
+	capCondition.setLongDescripton(commentAr);
+	var condRes = aa.capCondition.editCapCondition(capCondition)
+	if (!condRes.getSuccess()) {
+		throw condRes.getErrorMessage()
+	}
+
+}
+Record.prototype.removeConditions = function() {
+	var conditions = aa.capCondition.getCapConditions(this.capId);
+	if (!conditions.getSuccess()) {
+		throw conditions.getErrorMessage();
+	}
+	conditions = conditions.getOutput()
+	for ( var x in conditions) {
+		aa.capCondition.deleteCapCondition(this.capId, conditions[x].getConditionNumber())
+	}
+}
+
+Record.prototype.handleAutoClaim = function() {
+	logDebug("Handling autoClaim on " + this)
+	var ret = null;
+	var r = aa.workflow.getTasks(this.capId);
+	if (!r.getSuccess()) {
+		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+	}
+	var s = r.getOutput();
+	for (i in s) {
+		var task = s[i];
+		var stepNumber = task.getStepNumber();
+
+		if (task.getActiveFlag().equals("Y")) {
+
+			var user = task.getTaskItem().getAssignedUser();
+			if (user != null && (user.getFullName() == null || user.getFullName().trim() == "")) {
+				logDebug(task.getTaskDescription() + " is Active and has department[" + user.getDeptOfUser() + "] but no user")
+
+				var userList = aa.people.getSysUserListByDepartmentName(user.getDeptOfUser()).getOutput();
+				logDebug("Department[" + user.getDeptOfUser() + "] has " + userList.length + " users ")
+				if (userList.length == 1) {
+					var userId = userList[0].getUserID();
+					task.setAssignedUser(userList[0]);
+					task.setAssignmentDate(aa.util.now());
+
+					var res = aa.workflow.assignTask(task.getTaskItem());
+					if (!res.getSuccess()) {
+						throw "**ERROR: Could not assign task: " + res.getErrorMessage();
+					}
+					logDebug(task.getTaskDescription() + " assigned to " + userId);
+				}
+			}
+		}
+	}
+
+}
+
 /**
  * delete record
  * 
- * @param {CapIDModel} capId - cap id.
+ * @param {CapIDModel}
+ *            capId - cap id.
  */
 Record.deleteRecord = function(capId) {
 	aa.cap.removeRecord(capId);
