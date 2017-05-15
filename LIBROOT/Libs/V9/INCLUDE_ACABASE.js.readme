@@ -1,0 +1,36 @@
+this is a base class for aca pageflow script. still not mature and needs a lot of functionalities
+please use the below sample for implementation
+-------------------------------------------------------------------
+/*------------------------------------------------------------------------------------------------------/
+| Program		: [file name]
+| Event			: [event name]
+|
+| Usage			: 
+| Notes			: 
+| Created by	: 
+| Created at	: 07/02/2016 11:26:47
+|
+/------------------------------------------------------------------------------------------------------*/
+
+function getScriptText(vScriptName) {
+	var servProvCode = aa.getServiceProviderCode();
+	vScriptName = vScriptName.toUpperCase();
+	var emseBiz = aa.proxyInvoker.newInstance("com.accela.aa.emse.emse.EMSEBusiness").getOutput();
+	try {
+		var emseScript = emseBiz.getScriptByPK(servProvCode, vScriptName, "ADMIN");
+		return emseScript.getScriptText() + "";
+	} catch (err) {
+		return "";
+	}
+}
+eval(getScriptText("INCLUDE_ACABASE"));
+
+/*--------------------------------------------specific code----------------------------------------------------------*/
+
+ACABASE.prototype.execute = function() {
+
+}
+
+/*--------------------------------------------execution code----------------------------------------------------------*/
+run();
+---------------------------------------------------------
