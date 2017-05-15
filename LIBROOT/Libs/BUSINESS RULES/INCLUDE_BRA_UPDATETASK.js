@@ -16,7 +16,12 @@ function UPDATETASK() {
 }
 UPDATETASK.prototype = Object.create(BRA.prototype);
 UPDATETASK.prototype.constructor = UPDATETASK;
-
+UPDATETASK.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+UPDATETASK.prototype.getDescription = function() {
+	return "this action update a specific task in the workflow";
+}
 UPDATETASK.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	return jsonArray;
@@ -38,12 +43,14 @@ UPDATETASK.prototype.getParams = function() {
 		},
 		config : {
 			TaskName : {
+				help : "the task you want to update",
 				displayName : String("Task Name"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			Status : {
+				help : "the update task status",
 				displayName : String("Status"),
 				editor : {
 					xtype : 'expfield'

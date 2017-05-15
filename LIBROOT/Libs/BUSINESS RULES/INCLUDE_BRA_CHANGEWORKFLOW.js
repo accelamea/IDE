@@ -16,7 +16,12 @@ function CHANGEWORKFLOW() {
 }
 CHANGEWORKFLOW.prototype = Object.create(BRA.prototype);
 CHANGEWORKFLOW.prototype.constructor = CHANGEWORKFLOW;
-
+CHANGEWORKFLOW.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+CHANGEWORKFLOW.prototype.getDescription = function() {
+	return "this action change the workflow";
+}
 CHANGEWORKFLOW.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	var strQry = "select R1_PROCESS_CODE from SPROCESS_GROUP where SERV_PROV_CODE = ?";
@@ -47,6 +52,7 @@ CHANGEWORKFLOW.prototype.getParams = function() {
 		},
 		config : {
 			workflowcode : {
+				help : "the workflow group code",
 				displayName : String("Workflow Code"),
 				editor : this.buildCombo("workflowcode")
 			}

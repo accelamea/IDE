@@ -16,7 +16,12 @@ function SCHEDULEINSPECTION() {
 }
 SCHEDULEINSPECTION.prototype = Object.create(BRA.prototype);
 SCHEDULEINSPECTION.prototype.constructor = SCHEDULEINSPECTION;
-
+SCHEDULEINSPECTION.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+SCHEDULEINSPECTION.prototype.getDescription = function() {
+	return "this action schedule an inspection";
+}
 SCHEDULEINSPECTION.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	var capTypeService = com.accela.aa.emse.dom.service.CachedService.getInstance().getCapTypeService();
@@ -87,16 +92,19 @@ SCHEDULEINSPECTION.prototype.getParams = function() {
 		},
 		config : {
 			InspectionType : {
+				help : "the inspection type",
 				displayName : String("Inspection Type"),
 				editor : this.buildCombo("InspectionType")
 			},
 			InspectionDate : {
+				help : "the inspection date",
 				displayName : String("Inspection Date"),
 				editor : {
 					xtype:'expfield'
 				}
 			},
 			Units : {
+				help : "the inspection units",
 				displayName : String("Units"),
 				editor : {
 					xtype:'numberfield'
@@ -104,12 +112,14 @@ SCHEDULEINSPECTION.prototype.getParams = function() {
 				
 			},
 			Inspector : {
+				help : "the inspector",
 				displayName : String("Inspector"),
 				editor : {
 					xtype:'expfield'
 				}
 			},
 			AutoAssign : {
+				help : "auto assign or not",
 				displayName : String("Auto Assign"),
 				editor : {
 					xtype : 'checkbox'

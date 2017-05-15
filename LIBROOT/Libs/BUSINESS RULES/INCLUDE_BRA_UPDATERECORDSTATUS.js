@@ -16,7 +16,12 @@ function UPDATERECORDSTATUS() {
 }
 UPDATERECORDSTATUS.prototype = Object.create(BRA.prototype);
 UPDATERECORDSTATUS.prototype.constructor = UPDATERECORDSTATUS;
-
+UPDATERECORDSTATUS.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+UPDATERECORDSTATUS.prototype.getDescription = function() {
+	return "this action update application status to provided value";
+}
 UPDATERECORDSTATUS.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	return jsonArray;
@@ -36,6 +41,7 @@ UPDATERECORDSTATUS.prototype.getParams = function() {
 		},
 		config : {
 			Status : {
+				help : "the new status",
 				displayName : String("Status"),
 				editor : {
 					xtype : 'expfield'

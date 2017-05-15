@@ -18,7 +18,12 @@ function REQUIREDOCUMENT() {
 }
 REQUIREDOCUMENT.prototype = Object.create(BRA.prototype);
 REQUIREDOCUMENT.prototype.constructor = REQUIREDOCUMENT;
-
+REQUIREDOCUMENT.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+REQUIREDOCUMENT.prototype.getDescription = function() {
+	return "this action need to be implemented";
+}
 REQUIREDOCUMENT.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	return jsonArray;
@@ -30,6 +35,7 @@ REQUIREDOCUMENT.prototype.getParams = function() {
 			FileName : String("")
 		},
 		config : {
+			help : "the document name",
 			FileName : {
 				displayName : String("File Name")
 			}

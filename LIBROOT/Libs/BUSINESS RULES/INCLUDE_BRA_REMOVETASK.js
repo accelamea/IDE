@@ -16,7 +16,12 @@ function REMOVETASK() {
 }
 REMOVETASK.prototype = Object.create(BRA.prototype);
 REMOVETASK.prototype.constructor = REMOVETASK;
-
+REMOVETASK.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+REMOVETASK.prototype.getDescription = function() {
+	return "this action remove a specific task from the workflow";
+}
 REMOVETASK.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	return jsonArray;
@@ -36,6 +41,7 @@ REMOVETASK.prototype.getParams = function() {
 		},
 		config : {
 			TaskName : {
+				help : "the task you want to remove",
 				displayName : String("Task Name"),
 				editor : {
 					xtype : 'expfield'

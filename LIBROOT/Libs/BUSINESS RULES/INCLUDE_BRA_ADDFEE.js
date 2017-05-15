@@ -17,6 +17,14 @@ function ADDFEE() {
 ADDFEE.prototype = Object.create(BRA.prototype);
 ADDFEE.prototype.constructor = ADDFEE;
 
+ADDFEE.prototype.getAuthor = function() {
+    return "Jonathan Xu";
+}
+
+ADDFEE.prototype.getDescription = function() {
+	return "this action add a fee item to the record";
+}
+
 ADDFEE.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = []
 	if (paramName == "FeeItemCode") {
@@ -72,16 +80,19 @@ ADDFEE.prototype.getParams = function() {
 		},
 		config : {
 			FeeItemCode : {
+				help : "the fee item code",
 				displayName : String("Fee Item"),
 				editor : this.buildCombo("FeeItemCode")
 			},
 			Quantity : {
+				help : "the fee quantity",
 				displayName : String("Quantity"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			AutoInvoice : {
+				help : "auto invoice or not",
 				displayName : String("Auto Invoice"),
 				editor : {
 					xtype : 'checkbox'

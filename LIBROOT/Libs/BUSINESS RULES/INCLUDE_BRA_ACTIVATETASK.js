@@ -20,7 +20,12 @@ ACTIVATETASK.prototype.constructor = ACTIVATETASK;
 ACTIVATETASK.prototype.getParamValues = function(recordType, paramName) {
 
 }
-
+ACTIVATETASK.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+ACTIVATETASK.prototype.getDescription = function() {
+	return "this action activate a specific task in the workflow";
+}
 ACTIVATETASK.prototype.validateParams = function(params) {
 	var TaskName = params.TaskName;
 
@@ -37,12 +42,14 @@ ACTIVATETASK.prototype.getParams = function() {
 		},
 		config : {
 			TaskName : {
+				help : "the task you want to activate",
 				displayName : String("Task Name"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			DeactivateCurrent : {
+				help : "control if you want to deactivate the current task",
 				displayName : String("Deactivate Current"),
 				editor : {
 					xtype : 'checkboxfield'
@@ -55,5 +62,6 @@ ACTIVATETASK.prototype.getParams = function() {
 ACTIVATETASK.prototype.run = function(record, params, context) {
 	var taskName = params.TaskName;
 	var deactivate = params.DeactivateCurrent;
+	logDebug(" activateTask called on " + record + " for task " + taskName)
 	record.activateTask(taskName, deactivate);
 }

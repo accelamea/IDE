@@ -16,6 +16,12 @@ function UPDATEASI() {
 }
 UPDATEASI.prototype = Object.create(BRA.prototype);
 UPDATEASI.prototype.constructor = UPDATEASI;
+UPDATEASI.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+UPDATEASI.prototype.getDescription = function() {
+	return "this action update an application specific info field with the provided value";
+}
 
 UPDATEASI.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
@@ -50,7 +56,7 @@ UPDATEASI.prototype.getParamValues = function(recordType, paramName) {
 			}
 		}
 	}
-	jsonArray=	jsonArray.sort(function(a, b) {
+	jsonArray = jsonArray.sort(function(a, b) {
 		var ret = 0
 		if (a < b) {
 			ret = -1;
@@ -79,11 +85,13 @@ UPDATEASI.prototype.getParams = function() {
 		},
 		config : {
 			Value : {
+				help : "the value to set",
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			FieldName : {
+				help : "the application specific info field",
 				displayName : String("Field Name"),
 				editor : this.buildCombo("FieldName")
 

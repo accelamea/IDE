@@ -16,7 +16,12 @@ function SENDEMAIL() {
 }
 SENDEMAIL.prototype = Object.create(BRA.prototype);
 SENDEMAIL.prototype.constructor = SENDEMAIL;
-
+SENDEMAIL.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+SENDEMAIL.prototype.getDescription = function() {
+	return "this action send an email";
+}
 SENDEMAIL.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	var sql = "SELECT TEMPLATE_NAME FROM RNOTIFICATION_TEMPLATE ";
@@ -82,6 +87,7 @@ SENDEMAIL.prototype.getParams = function() {
 		},
 		config : {
 			to : {
+				help : "the email send to",
 				displayName : String("to"),
 				editor : {
 					xtype : 'expfield'
@@ -89,6 +95,7 @@ SENDEMAIL.prototype.getParams = function() {
 				}
 			},
 			subject : {
+				help : "the email subject",
 				displayName : String("Subject"),
 				editor : {
 					xtype : 'textfield'
@@ -96,6 +103,7 @@ SENDEMAIL.prototype.getParams = function() {
 				}
 			},
 			body : {
+				help : "the email body",
 				displayName : String("Body"),
 				editor : {
 					xtype : 'htmlfield'
@@ -103,18 +111,21 @@ SENDEMAIL.prototype.getParams = function() {
 				}
 			},
 			cc : {
+				help : "the email cc",
 				displayName : String("cc"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			bcc : {
+				help : "the email bcc",
 				displayName : String("bcc"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			EmailTemplate : {
+				help : "the email template",
 				displayName : String("Email Template"),
 				editor : this.buildCombo("EmailTemplate")
 			}

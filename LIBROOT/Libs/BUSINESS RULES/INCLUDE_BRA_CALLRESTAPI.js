@@ -32,6 +32,13 @@ function CALLRESTAPI() {
 CALLRESTAPI.prototype = Object.create(BRA.prototype);
 CALLRESTAPI.prototype.constructor = CALLRESTAPI;
 
+CALLRESTAPI.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+CALLRESTAPI.prototype.getDescription = function() {
+	return "this action call a rest api and return a response in order to be used in other actions";
+}
+
 CALLRESTAPI.prototype.validateParams = function(params) {
 
 	if (!params.Operation) {
@@ -82,6 +89,7 @@ CALLRESTAPI.prototype.getParams = function() {
 		},
 		config : {
 			Operation : {
+				help : "the web request configuration. it has the url, the body, the headers,...",
 				displayName : String("Operation"),
 				editor : {
 					xtype : 'restfield'
@@ -89,6 +97,7 @@ CALLRESTAPI.prototype.getParams = function() {
 				}
 			},
 			RuntineVarName : {
+				help : "the varibale name that will appear in the context under runtime folder",
 				displayName : String("Runtine variable name"),
 				editor : {
 					xtype : 'textfield'
@@ -96,9 +105,11 @@ CALLRESTAPI.prototype.getParams = function() {
 				}
 			},
 			UserName : {
+				help : "the user name",
 				displayName : String("User Name")
 			},
 			Password : {
+				help : "the password",
 				displayName : String("Password"),
 				editor : {
 					xtype : 'textfield'

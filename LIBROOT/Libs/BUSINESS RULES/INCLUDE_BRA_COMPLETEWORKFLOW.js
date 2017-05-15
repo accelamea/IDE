@@ -16,7 +16,12 @@ function COMPLETEWORKFLOW() {
 }
 COMPLETEWORKFLOW.prototype = Object.create(BRA.prototype);
 COMPLETEWORKFLOW.prototype.constructor = COMPLETEWORKFLOW;
-
+COMPLETEWORKFLOW.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+COMPLETEWORKFLOW.prototype.getDescription = function() {
+	return "this action complete the remain the workflow tasks";
+}
 COMPLETEWORKFLOW.prototype.getParams = function() {
 	return {
 		source : {

@@ -12,87 +12,68 @@ if (typeof Record === "undefined") {
 	eval(getScriptText("INCLUDE_BRA"));
 }
 function RUNEMSE() {
-	BRA.call(this, "RUNEMSE", "Run EMSE Script");
+	BRA.call(this, "RUNEMSE", "Run EMSE");
 }
 RUNEMSE.prototype = Object.create(BRA.prototype);
 RUNEMSE.prototype.constructor = RUNEMSE;
 
 RUNEMSE.prototype.getParamValues = function(recordType, paramName) {
-	var jsonArray = [];
-	if (paramName == "ScriptName") {
-		var fields = new DAO("REVT_AGENCY_SCRIPT").execQuery();
 
-		for ( var x in fields) {
-			var field = fields[x];
-			var obj = new Object();
-			obj.text = String(field["SCRIPT_CODE"]);
-			obj.value = String(field["SCRIPT_CODE"]);
-			jsonArray.push(obj);
-		}
-
-	}
-	return jsonArray;
 }
 
 RUNEMSE.prototype.validateParams = function(params) {
-	var ScriptName = params.ScriptName;
-	if(!ScriptName){
-		throw "ScriptName can't be empty!"
+	var script = params.script;
+	if (!script) {
+		throw "script can't be empty!"
+	}
+	if (!params.RuntineVarName) {
+		throw "Runtime variable name cant be empty";
 	}
 }
+RUNEMSE.prototype.hasReturn = function() {
+	return true;
+}
+RUNEMSE.prototype.contributeVariables = function(context, params) {
+	var varName = params.RuntineVarName;
+	if (!varName) {
+		varName = "ScriptResult";
+	}
+	logDebug("RUNEMSE CONTRIBUTING")
+	context.Runtime[varName] = "this.Runtime['" + varName + "']";
 
-
+}
 RUNEMSE.prototype.getParams = function() {
 	return {
 		source : {
-			ScriptName : String(""),
-			Param1 : String(""),
-			Param2 : String(""),
-			Param3 : String(""),
-			Param4 : String(""),
-			Param5 : String("")
+			script : String(""),
+			RuntineVarName : "ScriptResult"
 
 		},
 		config : {
+			script : {
+				displayName : String("Script"),
+				editor : {
+					xtype : 'expfield'
+				}
+			},
+			RuntineVarName : {
+				displayName : String("Runtine variable name"),
+				editor : {
+					xtype : 'textfield'
 
-			ScriptName : {
-				displayName : String("Script Name"),
-				editor : this.buildCombo("ScriptName")
-
-			},
-			Param1 : {
-				editor : {
-					xtype : 'expfield'
 				}
 			},
-			Param2 : {
-				editor : {
-					xtype : 'expfield'
-				}
-			},
-			Param3 : {
-				editor : {
-					xtype : 'expfield'
-				}
-			},
-			Param4 : {
-				editor : {
-					xtype : 'expfield'
-				}
-			},
-			Param5 : {
-				editor : {
-					xtype : 'expfield'
-				}
-			}
 		}
 	}
 }
 
 RUNEMSE.prototype.run = function(record, params, context) {
-	var scriptID = params.ScriptName;
-	var paramTable = aa.util.newHashtable();
-	//
-	var scriptRoot = com.accela.aa.emse.dom.service.CachedService.getInstance().getScriptRootService();
-	scriptRoot.runSubScript(scriptID,aa.getServiceProviderCode(),paramTable,aa.getAuditID());
+	var script = params.script;
+	var ret = context.evaluate(script);
+	var varName = params.RuntineVarName;
+	if (!varName) {
+		varName = "ScriptResult";
+	}
+	context.Runtime[varName] = ret;
+	return ret;
 }

@@ -17,6 +17,12 @@ function ASSIGNTASK() {
 }
 ASSIGNTASK.prototype = Object.create(BRA.prototype);
 ASSIGNTASK.prototype.constructor = ASSIGNTASK;
+ASSIGNTASK.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+ASSIGNTASK.prototype.getDescription = function() {
+	return "this action assign task to special department";
+}
 
 ASSIGNTASK.prototype.validateParams = function(params) {
 	var TaskName = params.TaskName;
@@ -34,12 +40,14 @@ ASSIGNTASK.prototype.getParams = function() {
 		},
 		config : {
 			TaskName : {
+				help : "the task name",
 				displayName : String("Task Name"),
 				editor : {
 					xtype : 'expfield'
 				}
 			},
 			Department : {
+				help : "the department you want to assign",
 				displayName : String("Department"),
 				editor : {
 					xtype : 'expfield'

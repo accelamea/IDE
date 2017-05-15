@@ -17,7 +17,12 @@ function UADESC() {
 }
 UADESC.prototype = Object.create(BRA.prototype);
 UADESC.prototype.constructor = UADESC;
-
+UADESC.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+UADESC.prototype.getDescription = function() {
+	return "this action update application name";
+}
 UADESC.prototype.getParams = function() {
 	return {
 		source : {
@@ -26,6 +31,7 @@ UADESC.prototype.getParams = function() {
 		},
 		config : {
 			ApplicationName : {
+				help : "the application name",
 				displayName : String('Application Name'),
 				editor : {
 					xtype : 'expfield'

@@ -16,7 +16,12 @@ function CANCEL() {
 }
 CANCEL.prototype = Object.create(BRA.prototype);
 CANCEL.prototype.constructor = CANCEL;
-
+CANCEL.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+CANCEL.prototype.getDescription = function() {
+	return "this action cancel the process";
+}
 CANCEL.prototype.getParams = function() {
 	return {
 		source : {
@@ -25,6 +30,7 @@ CANCEL.prototype.getParams = function() {
 		},
 		config : {
 			message : {
+				help : "the error message you want to display",
 				displayName : String('Error Message'),
 				editor : {
 					xtype : 'expfield'

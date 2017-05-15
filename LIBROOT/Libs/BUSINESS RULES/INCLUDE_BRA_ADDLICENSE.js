@@ -16,7 +16,12 @@ function ADDLICENSE() {
 }
 ADDLICENSE.prototype = Object.create(BRA.prototype);
 ADDLICENSE.prototype.constructor = ADDLICENSE;
-
+ADDLICENSE.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+ADDLICENSE.prototype.getDescription = function() {
+	return "this action add a license to the record";
+}
 ADDLICENSE.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 
@@ -37,6 +42,7 @@ ADDLICENSE.prototype.getParams = function() {
 		},
 		config : {
 			LicenseID : {
+				help : "the license number",
 				displayName : String("License ID"),
 				editor : {
 					xtype : 'expfield'

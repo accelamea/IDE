@@ -28,6 +28,12 @@ CALLSOAPWEBSERVICE.prototype.validateParams = function(params) {
 		throw "Operation can't be empty!"
 	}
 }
+CALLSOAPWEBSERVICE.prototype.getAuthor = function() {
+	return "Sleiman KOZAIZAN";
+}
+CALLSOAPWEBSERVICE.prototype.getDescription = function() {
+	return "this action call a soap webservice and return a response in order to be used in other actions";
+}
 
 CALLSOAPWEBSERVICE.prototype.addOperationParam = function(parentObj, param, path) {
 	if (param.children) {
@@ -69,6 +75,7 @@ CALLSOAPWEBSERVICE.prototype.getParams = function() {
 		},
 		config : {
 			Operation : {
+				help : "the soap request configuration. it has the url, the operation, the parameters,...",
 				displayName : String("Operation"),
 				editor : {
 					xtype : 'soapfield'
@@ -76,6 +83,7 @@ CALLSOAPWEBSERVICE.prototype.getParams = function() {
 				}
 			},
 			RuntineVarName : {
+				help : "the varibale name that will appear in the context under runtime folder",
 				displayName : String("Runtine variable name"),
 				editor : {
 					xtype : 'textfield'
@@ -83,9 +91,11 @@ CALLSOAPWEBSERVICE.prototype.getParams = function() {
 				}
 			},
 			UserName : {
+				help : "the user name",
 				displayName : String("User Name")
 			},
 			Password : {
+				help : "the password",
 				displayName : String("Password"),
 				editor : {
 					xtype : 'textfield'

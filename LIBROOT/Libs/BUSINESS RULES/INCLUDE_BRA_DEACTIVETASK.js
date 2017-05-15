@@ -16,7 +16,12 @@ function DEACTIVETASK() {
 }
 DEACTIVETASK.prototype = Object.create(BRA.prototype);
 DEACTIVETASK.prototype.constructor = DEACTIVETASK;
-
+DEACTIVETASK.prototype.getAuthor = function() {
+	return "Jonathan Xu";
+}
+DEACTIVETASK.prototype.getDescription = function() {
+	return "this action deactivate a specific task in the workflow";
+}
 DEACTIVETASK.prototype.getParamValues = function(recordType, paramName) {
 	var jsonArray = [];
 	return jsonArray;
@@ -36,6 +41,7 @@ DEACTIVETASK.prototype.getParams = function() {
 		},
 		config : {
 			TaskName : {
+				help : "the task you want to deactivate",
 				displayName : String("Task Name"),
 				editor : {
 					xtype : 'expfield'
