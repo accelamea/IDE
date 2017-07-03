@@ -3,7 +3,7 @@
    <feature url="features/com.accelalite.feature_1.0.0.4.jar" id="com.accelalite.feature" version="1.0.0.4">
       <category name="Accela"/>
    </feature>
-   <feature url="features/com.accela.ide_3.1.0.7.jar" id="com.accela.ide" version="3.1.0.7">
+   <feature url="features/com.accela.ide_3.1.0.9.jar" id="com.accela.ide" version="3.1.0.9">
       <category name="Accela"/>
    </feature>
    <category-def name="Accela" label="Accela"/>
