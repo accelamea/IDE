@@ -1,6 +1,7 @@
 [ {
-	VERSION : "1.3.1.0",
-	RELEASENOTES : [ "Adding Drilldown and drilldown mapping sheets",
-	                 "**Please make sure to ask the DBA to update the database accordingly**"],
+	VERSION : "1.3.2.0",
+	RELEASENOTES : [ "Fixing workflow validation bug on first task if ID is not used",
+	                 "Adding new sheet button, working with template version 1.3.2 and above",
+	                 "Adding the possibility to fill a word template from the workbook(beta version)"],
 	PATH : "AccelaExcelPlugin.msi"
 } ]
