@@ -1,5 +1,5 @@
 [ {
-	VERSION : "1.3.3.0",
+	VERSION : "1.3.4.0",
 	RELEASENOTES : [ "Adding new sheet button, working with template version 1.3.2 and above",
 	                 "Adding the possibility to fill a word template from the workbook",
 	                 "Adding the possibility to load sheet settings from file",
