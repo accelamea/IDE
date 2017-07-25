@@ -1,10 +1,8 @@
 [ {
-	VERSION : "1.3.5.0",
-	RELEASENOTES : [ "Adding new sheet button, working with template version 1.3.2 and above",
-	                 "Adding the possibility to fill a word template from the workbook",
-	                 "Adding the possibility to load sheet settings from file",
-	                 "Interface redesign for best practice",
-	                 "Now the plugin will be visible only for Accela Template",
-	                 "Performance enahcements"],
+	VERSION : "1.3.6.0",
+	RELEASENOTES : [ "UI enhancements",
+	                 "Word bookmark enchancement",
+	                 "Gateway SSL bug fix",
+	                 "DDL download on multi-agency bug fix"],
 	PATH : "AccelaExcelPlugin.msi"
 } ]
