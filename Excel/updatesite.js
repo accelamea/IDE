@@ -1,5 +1,5 @@
 [ {
-	VERSION : "1.3.7.0",
+	VERSION : "1.3.8.0",
 	RELEASENOTES : ["Smartchoice mapping fix",
 	                "Performance Enhancements",
 	                "UI enhancements",
