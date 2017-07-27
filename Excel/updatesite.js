@@ -1,10 +1,7 @@
 [ {
-	VERSION : "1.3.8.0",
-	RELEASENOTES : ["Smartchoice mapping fix",
+	VERSION : "1.4.0.0",
+	RELEASENOTES : ["Duplication validation across all sheets",
 	                "Performance Enhancements",
-	                "UI enhancements",
-	                 "Word bookmark enchancement",
-	                 "Gateway SSL bug fix",
-	                 "DDL download on multi-agency bug fix"],
+	                "Download wont override non accela fields"],
 	PATH : "AccelaExcelPlugin.msi"
 } ]
