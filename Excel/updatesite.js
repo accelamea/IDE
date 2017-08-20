@@ -1,13 +1,9 @@
 [ {
-	VERSION : "1.4.3.0",
-	RELEASENOTES : [  "Performance Enhancements",
-	                  "Lock feature to avoid changing configurations by multiple users in the same time",
-	                "Minor interface Bugs fix",
-	                "Workflow empty success message fix",
-	                "ASI/ASIT default value download fix",
-	                "Workflow reference space validation issue fix",
-	                "Duplication validation across all sheets",
-	              
-	                "Download wont override non accela fields"],
+	VERSION : "1.4.4.0",
+	RELEASENOTES : [ "Duplication validation for arabic labels in ASI/ASIT/WORKFLOW",
+	                 "Require DDL if the type is Shared Dropdown List in ASI/ASIT",
+	                 "Require DEFAULT_VALUE if the type is Shared Dropdown List and the field is required in ASI/ASIT",
+	                 "Fix for drill down issue(DB package)",
+	                 "Fix for Filter Check on Record Type Update(DB package)"],
 	PATH : "AccelaExcelPlugin.msi"
 } ]
