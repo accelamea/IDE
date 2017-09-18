@@ -5,7 +5,6 @@
  | SLEIMAN         06/01/2016 10:11:10 formatting code
  | SLEIMAN         06/01/2016 11:29:29 fixing updateAsitColumns bug, invalid indexes
  | SLEIMAN         06/01/2016 11:32:16 fixing asittoarray function
- | SLEIMAN         14/05/2017 10:12:16 adding service provider code and performance issues
  /-----END CHANGE LOG-----------------------------------------------------------------------------------*/
 
 var GLOBAL_EVAL = eval;
@@ -114,6 +113,20 @@ Record.prototype.getCapID = function() {
 /**
  * get contacts linked to current record.
  * 
+ * @param {String}
+ *            contactType - type of contact to filter with
+ * 
+ * @returns {Array} - array of contact model.
+ */
+Record.prototype.getContactsByType = function(contactType) {
+	return this.getContacts().filter(function(contact) {
+		return contact.getCapContactModel().getContactType() == contactType;
+	});
+}
+
+/**
+ * get contacts of certain type linked to current record.
+ * 
  * @returns {Array} - array of contact model.
  */
 Record.prototype.getContacts = function() {
@@ -124,6 +137,20 @@ Record.prototype.getContacts = function() {
 	}
 
 	return capContactArray;
+}
+
+/**
+ * remove contact from current record.
+ * 
+ * @param {long} -
+ *            the contact id to remove.
+ */
+Record.prototype.removeContact = function(contactId) {
+	aa.people.removeCapContact(this.getCapID(), contactId);
+}
+
+Record.prototype.addContact = function(capContactModel) {
+	aa.people.createCapContactWithRefPeopleModel(this.getCapID(), capContactModel.getPeople()).getOutput();
 }
 /**
  * get the ASIT attached to this record
@@ -195,6 +222,14 @@ Record.prototype.voidFeesAndPayment = function(isVoidCapBalance) {
 	}
 	return voidedInvoices;
 }
+Record.prototype.getBalance = function() {
+	var capDetailScriptModel = aa.cap.getCapDetail(this.capId).getOutput();
+	if (capDetailScriptModel == null) {
+		throw "capDetail is null";
+	}
+	var capDetail = capDetailScriptModel.getCapDetailModel();
+	return capDetail.getBalance();
+}
 Record.prototype.getDocumentList = function() {
 	var docListArray = new Array();
 	docListResult = aa.document.getCapDocumentList(this.capId, aa.getAuditID());
@@ -229,6 +264,44 @@ Record.prototype.getASI = function(asiGroup, name, defaultValue) {
 
 	return val;
 }
+
+/**
+ * get All ASI fields on the cap
+ * 
+ * @param {bool} -
+ *            if true each subgroup will be in its own object under the root
+ *            object, necessary if you have duplicate label names under
+ *            different subgroups
+ * 
+ * @return {object} - if groupBySubgroup is false an object with ASI labels and
+ *         values, if groupBySubgroup is true an object with ASI subgroups and
+ *         objects that contain ASI labels and values
+ */
+Record.prototype.getAllASI = function(groupBySubgroup) {
+	var asi = {};
+	var result = aa.appSpecificInfo.getByCapID(this.capId);
+	if (result.getSuccess()) {
+		var result = result.getOutput();
+		for (i in result) {
+			var value = result[i].getChecklistComment();
+			if (value == null || value + "" == "") {
+				value = "";
+			}
+			var asiLabel = result[i].getCheckboxDesc();
+			if (groupBySubgroup) {
+				var subGroupName = result[i].getCheckboxType()
+				if (!asi.hasOwnProperty(subGroupName)) {
+					asi[subGroupName] = {};
+				}
+				asi[subGroupName][asiLabel] = value
+			} else {
+				asi[asiLabel] = value;
+			}
+		}
+	}
+	return asi;
+}
+
 /**
  * copy values of passed ASIT from specific record into current record if there
  * is difference in names between source ASIT column names and destination
@@ -382,6 +455,33 @@ Record.prototype.createOrUpdateFee = function(fcode, fsched, fqty, fperiod, pDup
 	}
 
 	return feeSeq;
+
+}
+Record.prototype.invoiceFees = function() {
+
+	var feesRequest = aa.fee.getFeeItems(this.capId);
+	if (!feesRequest.getSuccess()) {
+		throw feesRequest.getErrorMessage();
+	}
+	var fees = feesRequest.getOutput();
+	var invFeeSeqList = new Array();
+	var invPaymentPeriodList = new Array();
+
+	for ( var x in fees) {
+		thisFee = fees[x];
+		if (thisFee.getFeeitemStatus().equals("NEW")) {
+			invFeeSeqList.push(thisFee.getFeeSeqNbr());
+			invPaymentPeriodList.push(thisFee.getPaymentPeriod());
+			logDebug("Assessed fee " + thisFee.getFeeCod() + " found and tagged for invoicing");
+		}
+	}
+
+	if (invFeeSeqList.length) {
+		invoiceResult = aa.finance.createInvoice(this.capId, invFeeSeqList, invPaymentPeriodList);
+		if (!invoiceResult.getSuccess()) {
+			throw invoiceResult.getErrorMessage()
+		}
+	}
 
 }
 /**
@@ -582,27 +682,24 @@ Record.prototype.updateASIT = function(tableName, dataSet) {
 	var tableModel = i.getAppSpecificTableModel();
 	var o = tableModel.getTableField();
 	var u = tableModel.getReadonlyField();
+
 	for (thisrow in dataSet) {
 		var a = tableModel.getColumns();
 		var f = a.iterator();
 		while (f.hasNext()) {
 			var l = f.next();
 			var dt = dataSet[thisrow][l.getColumnName()];
-			if (typeof dt == "object") {
-				var val = dataSet[thisrow][l.getColumnName()].fieldValue;
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
-			} else {
-				var val = dataSet[thisrow][l.getColumnName()];
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
+
+			var val = dataSet[thisrow][l.getColumnName()];
+
+			if (val == null) {
+				val = "";
 			}
+			val = String(val)
+			o.add(val);
+
+			u.add(null)
+
 		}
 		tableModel.setTableField(o);
 		tableModel.setReadonlyField(u)
@@ -1095,9 +1192,10 @@ Record.prototype.updateTaskAndHandleDisposition = function(taskName, taskStatus,
 		}
 
 	} catch (e) {
-		aa.debug("**EXCEPTION in Record.updateTaskAndHandleDisposition, running system one", e);
-		updateTaskAndHandleDisposition(taskName, taskStatus, this.capId)
+		aa.debug("**EXCEPTION in Record.updateTaskAndHandleDisposition", e);
+		throw "ERROR AT Record.updateTaskAndHandleDisposition: " + e;
 	}
+
 }
 Record.prototype.getPriority = function() {
 	var cdScriptObjResult = aa.cap.getCapDetail(this.capId).getOutput();
@@ -1148,7 +1246,7 @@ Record.prototype.AutoScheduleInspectionInfo = function(inspModel, date) {
 Record.prototype.activateTask = function(task, desactivateCurrent) {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1164,11 +1262,16 @@ Record.prototype.activateTask = function(task, desactivateCurrent) {
 	}
 }
 
-/*
- * Added by : Omar Maani Date : 13/10/2016 Purpose : to assign new workflow to
- * record
- * 
- */
+Record.prototype.getExpirationDate = function() {
+	var date = null;
+	var exp = aa.expiration.getLicensesByCapID(this.capId).getOutput();
+	var scriptDate = exp.getExpDate();
+	if (scriptDate) {
+		date = Record.toDate(scriptDate);
+	}
+	return date;
+}
+
 Record.prototype.deleteAndAssignWorkflow = function(newProcessCode, isReallyDelete) {
 
 	var success = aa.workflow.deleteAndAssignWorkflow(this.capId, newProcessCode, isReallyDelete);
@@ -1226,7 +1329,7 @@ Record.prototype.deleteTaskAndItsSubProcess = function(taskName) {
 Record.prototype.completeWorkflow = function() {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1244,7 +1347,7 @@ Record.prototype.completeWorkflow = function() {
 Record.prototype.setCurrentWorkflowTaskStatus = function(taskStatus, comment) {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1273,7 +1376,7 @@ Record.prototype.getCurrentWorkflowTask = function() {
 	var ret = null;
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1287,13 +1390,32 @@ Record.prototype.getCurrentWorkflowTask = function() {
 	}
 	return ret;
 }
+Record.prototype.getCurrentWorkflowTasks = function() {
+	var ret = [];
+	var r = aa.workflow.getTasks(this.capId);
+	if (!r.getSuccess()) {
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
+	}
+	var s = r.getOutput();
+
+	for (i in s) {
+		var wfTask = s[i];
+		var stepNumber = wfTask.getStepNumber();
+
+		if (wfTask.getActiveFlag().equals("Y")) {
+			ret.push(wfTask);
+
+		}
+	}
+	return ret;
+}
 Record.prototype.isTaskActive = function(task) {
 
 	var ret = false;
 
 	var workflowResult = aa.workflow.getTaskItems(this.capId, task, "", null, null, "Y");
 	if (!workflowResult.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + workflowResult.getErrorMessage();
 	}
 	var wfObj = workflowResult.getOutput();
 
@@ -1791,6 +1913,27 @@ Record.prototype.assignCurrentWfTaskToUser = function(userId) {
 	logDebug(" Assign Workflow task [" + curTask + "] to user [" + sysUserModelObj.getFullName() + "].");
 }
 
+Record.prototype.assignCurrentWfTaskToDepartment = function(department) {
+
+	var curTask = this.getCurrentWorkflowTask();
+	if (curTask) {
+		var taskUserObj = curTask.getTaskItem().getAssignedUser()
+		taskUserObj.setDeptOfUser(department);
+		taskUserObj.setFirstName("");
+		taskUserObj.setMiddleName("");
+		taskUserObj.setLastName("");
+		taskUserObj.setUserID("");
+		curTask.setAssignedUser(taskUserObj);
+		var taskItem = curTask.getTaskItem();
+
+		var adjustResult = aa.workflow.assignTask(taskItem);
+		if (!adjustResult.getSuccess()) {
+			throw "ERROR: Updated Workflow Task : " + curTask.getTaskDescription() + ":" + adjustResult.getErrorMessage()
+		}
+
+	}
+
+}
 /**
  * set cap class value.
  * 
@@ -1803,7 +1946,17 @@ Record.prototype.setCapClass = function(capCalss) {
 	capModel.setCapClass(capCalss);
 	aa.cap.editCapByPK(capModel);
 }
+/**
+ * get cap class.
+ * 
+ * @param {string}
+ *            capCalss - cap class  (ex. COMPLETE, EDITABLE, ...).
+ */
+Record.prototype.getCapClass = function() {
 
+	return this.getCapModel().getCapClass();
+
+}
 /**
  * copy contacts from specific record to current record.
  * 
@@ -2061,7 +2214,45 @@ Record.getByAsi = function(ASIName, ASIValue, type) {
 	}
 	return ret;
 }
+Record.getByAppName = function(recordType, appName, capStatus, returnClass) {
+	returnClass = returnClass || Record;
+	var capBusiness = com.accela.aa.emse.dom.service.CachedService.getInstance().getCapService();
 
+	var capList = new Array();
+	var capModel = aa.cap.getCapModel().getOutput();
+	if (recordType) {
+		var splited = recordType.split("/");
+		if (splited.length != 4) {
+			throw "invalid record type:" + recordType
+		}
+
+		capModel.getCapType().setGroup(splited[0]);
+		capModel.getCapType().setType(splited[1]);
+		capModel.getCapType().setSubType(splited[2]);
+		capModel.getCapType().setCategory(splited[3]);
+	}
+	if (appName) {
+		capModel.setSpecialText(appName);
+	}
+
+	if (capStatus) {
+		capModel.setCapStatus(capStatus);
+	}
+
+	var response = capBusiness.getCapListByCollection(aa.getServiceProviderCode(), capModel, null, null, null, null, aa.util.newQueryFormat(), null, null, null, null, null);
+	var res = response.getResult().toArray();
+	for ( var x in res) {
+		var cap = res[x];
+
+		var childObj = Object.create(returnClass.prototype);
+		returnClass.apply(childObj, [ cap.getCapID() ]);
+
+		capList.push(childObj);
+	}
+
+	return capList;
+
+}
 Record.parseFieldName = function(fieldfullname) {
 	var ret = {};
 
@@ -2395,7 +2586,121 @@ Record.prototype.sendReportAsEmail = function(reportName, mailFrom, arrTo, repor
 	}
 
 }
+Record.prototype.setExpirationDate = function(date) {
+	this.setExpiration(date)
+}
+Record.prototype.setExpiration = function(date, status) {
+	var expRes = aa.expiration.getLicensesByCapID(this.capId);
+	if (!date && !status) {
+		throw "please specify date or status";
+	}
+	if (!expRes.getSuccess()) {
+		throw "Error While Retreiving Expiration for " + this.capId + ": " + expRes.getErrorMessage();
+	}
+	expRes = expRes.getOutput();
+	if (date) {
+		expRes.getB1Expiration().setExpDate(date);
+	}
+	if (status) {
+		expRes.setExpStatus(status);
+	}
 
+	var res = aa.expiration.editB1Expiration(expRes.getB1Expiration());
+	if (!res.getSuccess()) {
+		throw "Error While saving Expiration for " + this.capId + ": " + res.getErrorMessage();
+	}
+
+}
+Record.prototype.renewExpirationDateFromSettings = function() {
+	var expirationRes = aa.expiration.getLicensesByCapID(this.capId);
+	if (!expirationRes.getSuccess()) {
+		throw "Update expiration failed, error while getting expiration model for cap " + this.capId + ": " + expirationModel.getErrorMessage();
+
+	}
+	var exp = expirationRes.getOutput();
+	var expUnit = exp.getExpUnit();
+	var expInterval = exp.getExpInterval();
+	var expDate = Record.toDate(exp.getExpDate());
+	if (expUnit == "Days") {
+		expDate.setDate(expDate.getDate() + expInterval);
+	} else if (expUnit == "Months") {
+		expDate.setMonth(expDate.getMonth() + expInterval);
+	} else if (expUnit == "Years") {
+		expDate.setFullYear(expDate.getFullYear() + expInterval);
+	}
+
+	this.setExpiration(expDate, "Active")
+}
+/**
+ * returns a record instance for the Cap ID string
+ * 
+ * @param {string}
+ *            capIdStr - cap ID in YYxxx-00000-xxxxx format
+ * 
+ * @returns {Record} the record instance
+ */
+Record.getByCapID = function(capIdStr) {
+	var capIdArr = capIdStr.split("-");
+
+	if (capIdArr.length != 3) {
+		throw "The Cap ID " + capIdStr + " format is invalid";
+	}
+
+	var capId = aa.cap.getCapID(capIdArr[0], capIdArr[1], capIdArr[2]);
+
+	if (!capId.getSuccess()) {
+		throw capId.getErrorMessage();
+	}
+
+	return new Record(capId.getOutput());
+}
+/**
+ * returns all fee items on record
+ * 
+ * @returns {Array} record fee items
+ */
+Record.prototype.getFeeItems = function() {
+	var feeItems = aa.finance.getFeeItemByCapID(this.capId);
+	if (!feeItems.getSuccess()) {
+		throw feeItems.getErrorMessage();
+	}
+	return feeItems.getOutput();
+}
+
+/**
+ * returns all paid fee items on record
+ * 
+ * @returns {Array} record paid fee items
+ */
+Record.prototype.getPaidFeeItems = function() {
+	var paidFeeItems = aa.finance.getPaymentFeeItems(this.capId, null);
+	if (!paidFeeItems.getSuccess()) {
+		throw paidFeeItems.getErrorMessage();
+	}
+	return paidFeeItems.getOutput();
+
+}
+
+/**
+ * returns all invoiced and unpaid fee items on record
+ * 
+ * @returns {Array} record unpaid fee items
+ */
+Record.prototype.getUnpaidFeeItems = function() {
+	var feeItems = this.getFeeItems();
+	var paidFeeItems = this.getPaidFeeItems();
+	var paidFeeItemsMap = {};
+	for (var i = 0; i < paidFeeItems.length; i++) {
+		paidFeeItemsMap[paidFeeItems[i].getFeeSeqNbr()] = true;
+	}
+
+	// Only keep unpaid and invoiced fee items
+	return feeItems.filter(function(feeItem) {
+		var paid = paidFeeItemsMap.hasOwnProperty(feeItem.getFeeSeqNbr());
+
+		return (!paid && feeItem.getFeeitemStatus() == "INVOICED")
+	});
+}
 /**
  * Check if any required custom field has value empty or null.
  */
@@ -2610,7 +2915,7 @@ Record.prototype.handleAutoClaim = function() {
 	var ret = null;
 	var r = aa.workflow.getTasks(this.capId);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -2651,6 +2956,9 @@ Record.prototype.handleAutoClaim = function() {
 Record.deleteRecord = function(capId) {
 	aa.cap.removeRecord(capId);
 }
+/**
+ * @deprecated please use System.require
+ */
 Record.require = function(serviceName) {
 	var type = eval("typeof " + serviceName);
 	if (type == "undefined") {

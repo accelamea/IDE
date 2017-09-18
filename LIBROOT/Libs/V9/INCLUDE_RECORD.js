@@ -682,27 +682,24 @@ Record.prototype.updateASIT = function(tableName, dataSet) {
 	var tableModel = i.getAppSpecificTableModel();
 	var o = tableModel.getTableField();
 	var u = tableModel.getReadonlyField();
+
 	for (thisrow in dataSet) {
 		var a = tableModel.getColumns();
 		var f = a.iterator();
 		while (f.hasNext()) {
 			var l = f.next();
 			var dt = dataSet[thisrow][l.getColumnName()];
-			if (typeof dt == "object") {
-				var val = dataSet[thisrow][l.getColumnName()].fieldValue;
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
-			} else {
-				var val = dataSet[thisrow][l.getColumnName()];
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
+
+			var val = dataSet[thisrow][l.getColumnName()];
+
+			if (val == null) {
+				val = "";
 			}
+			val = String(val)
+			o.add(val);
+
+			u.add(null)
+
 		}
 		tableModel.setTableField(o);
 		tableModel.setReadonlyField(u)
@@ -1249,7 +1246,7 @@ Record.prototype.AutoScheduleInspectionInfo = function(inspModel, date) {
 Record.prototype.activateTask = function(task, desactivateCurrent) {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -2918,7 +2915,7 @@ Record.prototype.handleAutoClaim = function() {
 	var ret = null;
 	var r = aa.workflow.getTasks(this.capId);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {

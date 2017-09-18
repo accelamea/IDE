@@ -682,27 +682,24 @@ Record.prototype.updateASIT = function(tableName, dataSet) {
 	var tableModel = i.getAppSpecificTableModel();
 	var o = tableModel.getTableField();
 	var u = tableModel.getReadonlyField();
+
 	for (thisrow in dataSet) {
 		var a = tableModel.getColumns();
 		var f = a.iterator();
 		while (f.hasNext()) {
 			var l = f.next();
 			var dt = dataSet[thisrow][l.getColumnName()];
-			if (typeof dt == "object") {
-				var val = dataSet[thisrow][l.getColumnName()].fieldValue;
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
-			} else {
-				var val = dataSet[thisrow][l.getColumnName()];
-				if (val == null) {
-					val = "";
-				}
-				o.add(val);
-				u.add(null)
+
+			var val = dataSet[thisrow][l.getColumnName()];
+
+			if (val == null) {
+				val = "";
 			}
+			val = String(val)
+			o.add(val);
+
+			u.add(null)
+
 		}
 		tableModel.setTableField(o);
 		tableModel.setReadonlyField(u)
@@ -1249,7 +1246,7 @@ Record.prototype.AutoScheduleInspectionInfo = function(inspModel, date) {
 Record.prototype.activateTask = function(task, desactivateCurrent) {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1332,7 +1329,7 @@ Record.prototype.deleteTaskAndItsSubProcess = function(taskName) {
 Record.prototype.completeWorkflow = function() {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1350,7 +1347,7 @@ Record.prototype.completeWorkflow = function() {
 Record.prototype.setCurrentWorkflowTaskStatus = function(taskStatus, comment) {
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1379,7 +1376,7 @@ Record.prototype.getCurrentWorkflowTask = function() {
 	var ret = null;
 	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -1393,13 +1390,32 @@ Record.prototype.getCurrentWorkflowTask = function() {
 	}
 	return ret;
 }
+Record.prototype.getCurrentWorkflowTasks = function() {
+	var ret = [];
+	var r = aa.workflow.getTasks(this.capId);
+	if (!r.getSuccess()) {
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
+	}
+	var s = r.getOutput();
+
+	for (i in s) {
+		var wfTask = s[i];
+		var stepNumber = wfTask.getStepNumber();
+
+		if (wfTask.getActiveFlag().equals("Y")) {
+			ret.push(wfTask);
+
+		}
+	}
+	return ret;
+}
 Record.prototype.isTaskActive = function(task) {
 
 	var ret = false;
 
 	var workflowResult = aa.workflow.getTaskItems(this.capId, task, "", null, null, "Y");
 	if (!workflowResult.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + workflowResult.getErrorMessage();
 	}
 	var wfObj = workflowResult.getOutput();
 
@@ -1897,6 +1913,27 @@ Record.prototype.assignCurrentWfTaskToUser = function(userId) {
 	logDebug(" Assign Workflow task [" + curTask + "] to user [" + sysUserModelObj.getFullName() + "].");
 }
 
+Record.prototype.assignCurrentWfTaskToDepartment = function(department) {
+
+	var curTask = this.getCurrentWorkflowTask();
+	if (curTask) {
+		var taskUserObj = curTask.getTaskItem().getAssignedUser()
+		taskUserObj.setDeptOfUser(department);
+		taskUserObj.setFirstName("");
+		taskUserObj.setMiddleName("");
+		taskUserObj.setLastName("");
+		taskUserObj.setUserID("");
+		curTask.setAssignedUser(taskUserObj);
+		var taskItem = curTask.getTaskItem();
+
+		var adjustResult = aa.workflow.assignTask(taskItem);
+		if (!adjustResult.getSuccess()) {
+			throw "ERROR: Updated Workflow Task : " + curTask.getTaskDescription() + ":" + adjustResult.getErrorMessage()
+		}
+
+	}
+
+}
 /**
  * set cap class value.
  * 
@@ -1909,7 +1946,17 @@ Record.prototype.setCapClass = function(capCalss) {
 	capModel.setCapClass(capCalss);
 	aa.cap.editCapByPK(capModel);
 }
+/**
+ * get cap class.
+ * 
+ * @param {string}
+ *            capCalss - cap class  (ex. COMPLETE, EDITABLE, ...).
+ */
+Record.prototype.getCapClass = function() {
 
+	return this.getCapModel().getCapClass();
+
+}
 /**
  * copy contacts from specific record to current record.
  * 
@@ -2868,7 +2915,7 @@ Record.prototype.handleAutoClaim = function() {
 	var ret = null;
 	var r = aa.workflow.getTasks(this.capId);
 	if (!r.getSuccess()) {
-		throw "**ERROR: Failed to get workflow object: " + s_capResult.getErrorMessage();
+		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
 	var s = r.getOutput();
 	for (i in s) {
@@ -2913,7 +2960,10 @@ Record.deleteRecord = function(capId) {
  * @deprecated please use System.require
  */
 Record.require = function(serviceName) {
-	System.require(serviceName)
+	var type = eval("typeof " + serviceName);
+	if (type == "undefined") {
+		GLOBAL_EVAL(getScriptText("INCLUDE_" + serviceName));
+	}
 }
 
 if (typeof logDebug === "undefined") {
@@ -2935,3 +2985,4 @@ if (typeof logDebug === "undefined") {
 		if ((showDebug & vLevel) == vLevel)
 			aa.debug(aa.getServiceProviderCode() + " : " + aa.env.getValue("CurrentUserID"), dstr);
 	}
+}
