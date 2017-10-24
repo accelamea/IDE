@@ -1,6 +1,6 @@
 [ {
 	VERSION : "1.5.3.0",
-	RELEASENOTES : [ "1.5.2: Fixing worflow sheet issue", 
+	RELEASENOTES : [ "1.5.3: Fixing worflow sheet issue", 
 	                 "1.5.2: Fixing Missing Value(H) for display in ACA in ASI and ASIT",  
 	                 "1.5.1: Fixing issue inspection sheet validation"	,            
 	                 "1.5.0: Including Field Alias for ASI sheet (Require Database Update)",
