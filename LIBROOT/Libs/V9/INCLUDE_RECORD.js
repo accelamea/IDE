@@ -1327,7 +1327,7 @@ Record.prototype.deleteTaskAndItsSubProcess = function(taskName) {
 }
 
 Record.prototype.completeWorkflow = function() {
-	var r = aa.workflow.getTasks(this.capId);
+	var r = aa.workflow.getTaskItems(this.capId, "", "", null, null, null);
 	if (!r.getSuccess()) {
 		throw "**ERROR: Failed to get workflow object: " + r.getErrorMessage();
 	}
@@ -1338,7 +1338,7 @@ Record.prototype.completeWorkflow = function() {
 
 		if (wfTask.getActiveFlag().equals("Y")) {
 			var completeFlag = wfTask.getCompleteFlag();
-			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, null, null);
+			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, wfTask.getAssignmentDate(), wfTask.getDueDate());
 		}
 	}
 	logDebug("Complete Workflow called on " + this)

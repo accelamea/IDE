@@ -1338,7 +1338,7 @@ Record.prototype.completeWorkflow = function() {
 
 		if (wfTask.getActiveFlag().equals("Y")) {
 			var completeFlag = wfTask.getCompleteFlag();
-			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, null, null);
+			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, wfTask.getAssignmentDate(), wfTask.getDueDate());
 		}
 	}
 	logDebug("Complete Workflow called on " + this)

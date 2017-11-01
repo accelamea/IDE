@@ -1338,10 +1338,11 @@ Record.prototype.completeWorkflow = function() {
 
 		if (wfTask.getActiveFlag().equals("Y")) {
 			var completeFlag = wfTask.getCompleteFlag();
-			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, null, null);
+			aa.workflow.adjustTask(this.capId, stepNumber, "N", completeFlag, wfTask.getAssignmentDate(), wfTask.getDueDate());
 		}
 	}
 	logDebug("Complete Workflow called on " + this)
+
 }
 
 Record.prototype.setCurrentWorkflowTaskStatus = function(taskStatus, comment) {
@@ -1950,7 +1951,7 @@ Record.prototype.setCapClass = function(capCalss) {
  * get cap class.
  * 
  * @param {string}
- *            capCalss - cap class  (ex. COMPLETE, EDITABLE, ...).
+ *            capCalss - cap class (ex. COMPLETE, EDITABLE, ...).
  */
 Record.prototype.getCapClass = function() {
 
