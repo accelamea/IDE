@@ -1,0 +1,19 @@
+Library used to read CSV files
+example:
+var addressCSV = new CSVAPI(addressFileName, separator, charset);
+addressCSV.setColumnSpecs("REFERENCEADDRESSID", true, "int", "MAFID");
+addressCSV.setColumnSpecs("ADDRESSTYPE", false, "string", "TYPE OF RESIDENCE", null, getSTDValues("SDOT_Type_Of_Residence"));
+addressCSV.setColumnSpecs("RPZELIGIBLE", false, "bool", "RPZ ELIGIBLE");
+var data = addressCSV.getDataSet();
+if (addressCSV.hasErrors()) {
+	var errors = addressCSV.getErrors();
+	logDebug("Could not import File:" + addressFileName + ". " + errors.length + " Error(s) has been found!")
+	for ( var x in errors) {
+		logDebug("ERROR:" + errors[x])
+	}
+} else {
+	logDebug("Importing File:" + addressFileName + ". " + data.length + " row(s) found!");
+	for ( var x in data) {
+		var row = data[x];
+	}
+}
