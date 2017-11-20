@@ -1,6 +1,6 @@
 [ {
-	VERSION : "1.5.6.0",
-	RELEASENOTES : [ "1.5.6: Enhanced Login and improvements on Word Export feature", 
+	VERSION : "1.5.7.0",
+	RELEASENOTES : [ "1.5.7: Enhanced Login and improvements on Word Export feature", 
 	                 "1.5.5: Enhanced error for department duplicated name", 
 	                 "1.5.4: TSI data type validation, field is mandatory now", 
 	                 "1.5.3: Fixing worflow sheet issue", 
