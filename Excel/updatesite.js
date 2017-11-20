@@ -1,6 +1,7 @@
 [ {
-	VERSION : "1.5.5.0",
-	RELEASENOTES : [ "1.5.5: Enhanced error for department duplicated name", 
+	VERSION : "1.5.6.0",
+	RELEASENOTES : [ "1.5.6: Enhanced Login and improvements on Word Export feature", 
+	                 "1.5.5: Enhanced error for department duplicated name", 
 	                 "1.5.4: TSI data type validation, field is mandatory now", 
 	                 "1.5.3: Fixing worflow sheet issue", 
 	                 "1.5.2: Fixing Missing Value(H) for display in ACA in ASI and ASIT",  
