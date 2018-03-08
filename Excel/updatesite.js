@@ -1,6 +1,7 @@
 [ {
-	VERSION : "2.0.2.0",
-	RELEASENOTES : [ "2.0.2: upload button is always disabled bug fix",
+	VERSION : "2.0.3.0",
+	RELEASENOTES : [ "2.0.3: Fixing minor issues",
+					 "2.0.2: upload button is always disabled bug fix",
 	                 "2.0.0: Major release, including bug fixing and Create Swimlanes feature",
 	                 "1.5.8: Fixing bugs in Word Export feature",
 	                 "1.5.7: Fixing bugs in Word Export feature",
