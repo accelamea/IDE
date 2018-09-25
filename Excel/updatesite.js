@@ -1,6 +1,7 @@
 [ {
-	VERSION : "2.0.4.0",
-	RELEASENOTES : [ "2.0.4: Generate test cases",
+	VERSION : "2.0.5.0",
+	RELEASENOTES : [ "2.0.5: General fixes and parallel tasks generation",
+					 "2.0.4: Generate test cases",
 					 "2.0.3: Fixing minor issues",
 					 "2.0.2: upload button is always disabled bug fix",
 	                 "2.0.0: Major release, including bug fixing and Create Swimlanes feature",
