@@ -21,7 +21,7 @@
  * @param {string}
  *            password - the password for the SOAP request
  */
-System.require("Utils");
+aa.includeScript("INCLUDE_UTILS");
 /**
  * SOAP request bound to specific SOAP action.
  * 
@@ -40,7 +40,7 @@ function SOAPAPI(url, soapAction, username, password) {
 		throw "ERROR: Failed to initialize SOAP API, the URL is required";
 	}
 	if (Utils.isBlankOrNull(soapAction)) {
-		throw "ERROR: Failed to initialize SOAP API, the SOAP action is required";
+		//throw "ERROR: Failed to initialize SOAP API, the SOAP action is required";
 	}
 	this.url = url;
 	this.soapAction = soapAction;
@@ -147,7 +147,81 @@ SOAPAPI.prepareMessageParameters = function(soapMessage, parameters) {
 		match = regex.exec(soapMessage);
 	}
 	if (missingParams.length > 0) {
-		logDebug("WARN: The following parameters [" + missingParams.join(",") + "] were not set in the soap message " + soapMessage);
+		aa.debug("SOAPAPI", "WARN: The following parameters [" + missingParams.join(",") + "] were not set in the soap message " + soapMessage);
 	}
 	return soapMessage;
+}
+SOAPAPI.prototype.sendRequestGetOBJ = function(soapMessage, parameters) {
+
+	var responseBody = this.sendRequest(soapMessage, parameters);
+
+	return new SOAPResult(responseBody).toJson()
+}
+
+function SOAPResult(res) {
+	var sreader = new java.io.StringReader(res)
+	var builder = new org.jdom.input.SAXBuilder();
+	this.doc = builder.build(sreader)
+	this.references = aa.util.newHashMap();
+
+}
+SOAPResult.prototype.parseParam = function(eltParam) {
+	var ret = {};
+	var name = eltParam.getName();
+	var href = eltParam.getAttributeValue("href");
+	if (href) {
+		eltParam = this.references.get(href);
+	}
+	ret.name = String(name);
+	ret.obj = {};
+	var subparams = eltParam.getChildren();
+	if (subparams.size() > 0) {
+		subparams = subparams.toArray();
+		for ( var x in subparams) {
+			var pchild = subparams[x]
+			var pc = this.parseParam(pchild);
+			if (ret.obj[pc.name] != null) {
+				var prev = ret.obj[pc.name];
+				ret.obj = [ prev ];
+			}
+			if (Array.isArray(ret.obj)) {
+				ret.obj.push(pc.obj)
+			} else {
+				ret.obj[pc.name] = pc.obj;
+			}
+		}
+	} else {
+		ret.obj = String(eltParam.getText());
+	}
+	return ret;
+}
+SOAPResult.prototype.parse = function(params) {
+	var ret = {};
+	if (params.size() > 0) {
+		var eltParam = params.get(0);
+		var obj = this.parseParam(eltParam)
+		ret = obj.obj
+	}
+	return ret;
+}
+
+SOAPResult.prototype.toJson = function() {
+	var ret = {};
+	var eltMsg = this.doc.getRootElement();
+	var ns = eltMsg.getNamespace();
+	var eltBody = eltMsg.getChild("Body", ns);
+	var bodyContent = eltBody.getChildren();
+	var eltres = bodyContent.get(0);
+	var params = eltres.getChildren();
+
+	for (i = 1; i < bodyContent.size(); i++) {
+		var elt = bodyContent.get(i)
+		if (elt.getName().equalsIgnoreCase("multiRef")) {
+			var id = elt.getAttributeValue("id");
+			this.references.put("#" + id, elt)
+		}
+	}
+
+	ret = this.parse(params);
+	return ret;
 }
