@@ -1,6 +1,10 @@
 [ {
-	VERSION : "2.0.3.0",
-	RELEASENOTES : [ "2.0.3: Fixing minor issues",
+	VERSION : "2.0.7.0",
+	RELEASENOTES : [ 
+					"2.0.7: Generate test cases enhancements",
+					"2.0.5: General fixes and parallel tasks generation",
+					 "2.0.4: Generate test cases",
+					 "2.0.3: Fixing minor issues",
 					 "2.0.2: upload button is always disabled bug fix",
 	                 "2.0.0: Major release, including bug fixing and Create Swimlanes feature",
 	                 "1.5.8: Fixing bugs in Word Export feature",
